@@ -29,6 +29,7 @@ output/
 # Local governed data and generated bundles
 governed_data/
 local_bundles/
+data/examples/
 
 # OS
 .DS_Store
