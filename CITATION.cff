@@ -1,0 +1,21 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it using the metadata below."
+title: "IGC Analysis Pipeline"
+type: software
+version: "2026.7.31"
+authors:
+  - family-names: "Brunaugh"
+    given-names: "Ashlee"
+    orcid: "https://orcid.org/0000-0001-5456-5427"
+    affiliation: "University of Michigan"
+    email: "brunaugh@umich.edu"
+abstract: >-
+  A source-neutral Python toolkit for inverse gas chromatography analysis,
+  quality control, plotting, and versioned neutral tabular inputs.
+repository-code: "https://github.com/Brunaugh-Lab/igc-analysis-pipeline"
+keywords:
+  - "inverse gas chromatography"
+  - "surface characterization"
+  - "chromatography"
+  - "scientific software"
+  - "Python"
