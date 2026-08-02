@@ -1,0 +1,5 @@
+experiment_id,injection_id,block_id,sequence_index,acquired_at,role,target_coverage_fraction,detector_gain,detector_channel,clipping_observed
+experiment-001,injection-000,block-001,0,2026-01-15T09:05:00-05:00,dead_time,,1.0,detector-primary,false
+experiment-001,injection-001,block-001,1,2026-01-15T09:10:00-05:00,probe,0.01,1.0,detector-primary,false
+experiment-001,injection-002,block-001,2,2026-01-15T09:15:00-05:00,probe,0.05,1.0,detector-primary,false
+experiment-001,injection-003,block-001,3,2026-01-15T09:20:00-05:00,dead_time,,1.0,detector-primary,false

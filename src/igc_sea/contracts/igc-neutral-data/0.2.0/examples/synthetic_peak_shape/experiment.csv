@@ -1,0 +1,2 @@
+dataset_id,experiment_id,sample_id,sample_mass_g,injection_loop_volume_m3,column_id,acquisition_started_at,specific_surface_area_m2_g,surface_area_source
+synthetic-peak-shape-001,experiment-001,sample-synthetic-001,0.250,2.50e-7,column-001,2026-01-15T09:00:00-05:00,1.50,synthetic-fixture

@@ -1,0 +1,158 @@
+{
+  "contract_name": "igc-neutral-data",
+  "contract_version": "0.2.0",
+  "profiles": {
+    "trace-core": {
+      "required_tables": [
+        "experiment.csv",
+        "columns.csv",
+        "conditions.csv",
+        "injections.csv",
+        "injection_components.csv",
+        "traces.csv",
+        "probe_properties.csv",
+        "calibration.csv"
+      ]
+    }
+  },
+  "manifest": {
+    "required": ["contract_name", "contract_version", "profile", "dataset_id", "created_at", "adapter_version", "files"],
+    "optional": ["source_fingerprint"]
+  },
+  "tables": {
+    "experiment.csv": {
+      "primary_key": ["experiment_id"],
+      "columns": {
+        "dataset_id": {"type": "string", "format": "identifier", "required": true},
+        "experiment_id": {"type": "string", "format": "identifier", "required": true},
+        "sample_id": {"type": "string", "format": "identifier", "required": true},
+        "sample_mass_g": {"type": "number", "required": true, "exclusive_minimum": 0},
+        "injection_loop_volume_m3": {"type": "number", "required": false, "exclusive_minimum": 0},
+        "column_id": {"type": "string", "format": "identifier", "required": true},
+        "acquisition_started_at": {"type": "datetime", "required": false},
+        "specific_surface_area_m2_g": {"type": "number", "required": false, "exclusive_minimum": 0},
+        "surface_area_source": {"type": "string", "required": false}
+      },
+      "foreign_keys": [{"columns": ["column_id"], "reference_table": "columns.csv", "reference_columns": ["column_id"]}]
+    },
+    "columns.csv": {
+      "primary_key": ["column_id"],
+      "columns": {
+        "column_id": {"type": "string", "format": "identifier", "required": true},
+        "packing_replicate_id": {"type": "string", "format": "identifier", "required": false},
+        "column_role": {"type": "string", "required": true, "enum": ["sample", "matrix_control", "reference"]},
+        "internal_diameter_m": {"type": "number", "required": false, "exclusive_minimum": 0},
+        "packed_bed_length_m": {"type": "number", "required": false, "exclusive_minimum": 0},
+        "conditioning_description": {"type": "string", "required": false},
+        "sample_batch_id": {"type": "string", "format": "identifier", "required": false},
+        "density_kg_m3": {"type": "number", "required": false, "exclusive_minimum": 0},
+        "density_basis": {"type": "string", "required": false, "enum": ["bulk_packed", "envelope", "skeletal", "modeled"]}
+      }
+    },
+    "conditions.csv": {
+      "primary_key": ["condition_id"],
+      "unique": [["injection_id", "quantity", "value_role", "measurement_basis"]],
+      "unit_by_quantity": {
+        "column_temperature": "K",
+        "flow_standard": "m3_s",
+        "flow_column": "m3_s",
+        "pressure_inlet": "Pa",
+        "pressure_outlet": "Pa",
+        "pressure_drop": "Pa",
+        "relative_humidity": "fraction"
+      },
+      "columns": {
+        "condition_id": {"type": "string", "format": "identifier", "required": true},
+        "injection_id": {"type": "string", "format": "identifier", "required": true},
+        "quantity": {"type": "string", "required": true, "enum": ["column_temperature", "flow_standard", "flow_column", "pressure_inlet", "pressure_outlet", "pressure_drop", "relative_humidity"]},
+        "value": {"type": "number", "required": true},
+        "unit": {"type": "string", "required": true, "enum": ["K", "m3_s", "Pa", "fraction"]},
+        "value_role": {"type": "string", "required": true, "enum": ["measured", "target"]},
+        "measured_at": {"type": "datetime", "required": false},
+        "measurement_basis": {"type": "string", "required": true, "enum": ["direct", "before", "after", "mean_before_after", "interpolated", "converted", "converted_before", "converted_after", "declared_target"]},
+        "source_channel": {"type": "string", "format": "identifier", "required": false}
+      },
+      "foreign_keys": [{"columns": ["injection_id"], "reference_table": "injections.csv", "reference_columns": ["injection_id"]}]
+    },
+    "injections.csv": {
+      "primary_key": ["injection_id"],
+      "unique": [["experiment_id", "sequence_index"]],
+      "columns": {
+        "experiment_id": {"type": "string", "format": "identifier", "required": true},
+        "injection_id": {"type": "string", "format": "identifier", "required": true},
+        "block_id": {"type": "string", "format": "identifier", "required": true},
+        "sequence_index": {"type": "integer", "required": true, "minimum": 0},
+        "acquired_at": {"type": "datetime", "required": false},
+        "role": {"type": "string", "required": true, "enum": ["probe", "dead_time", "blank", "reference"]},
+        "target_coverage_fraction": {"type": "number", "required": false, "minimum": 0},
+        "detector_gain": {"type": "number", "required": false, "exclusive_minimum": 0},
+        "detector_channel": {"type": "string", "format": "identifier", "required": true},
+        "clipping_observed": {"type": "boolean", "required": false}
+      },
+      "foreign_keys": [{"columns": ["experiment_id"], "reference_table": "experiment.csv", "reference_columns": ["experiment_id"]}]
+    },
+    "injection_components.csv": {
+      "primary_key": ["injection_id", "component_index"],
+      "columns": {
+        "injection_id": {"type": "string", "format": "identifier", "required": true},
+        "component_index": {"type": "integer", "required": true, "minimum": 0},
+        "probe_id": {"type": "string", "format": "identifier", "required": true},
+        "component_role": {"type": "string", "required": true, "enum": ["analyte", "dead_time_marker", "carrier_component", "reference_component"]},
+        "target_amount_mol": {"type": "number", "required": false, "minimum": 0},
+        "calibration_id": {"type": "string", "format": "identifier", "required": false},
+        "saturation_vapor_pressure_Pa": {"type": "number", "required": false, "exclusive_minimum": 0},
+        "vapor_pressure_source": {"type": "string", "required": false},
+        "vapor_pressure_model_id": {"type": "string", "required": false}
+      },
+      "foreign_keys": [
+        {"columns": ["injection_id"], "reference_table": "injections.csv", "reference_columns": ["injection_id"]},
+        {"columns": ["probe_id"], "reference_table": "probe_properties.csv", "reference_columns": ["probe_id"]},
+        {"columns": ["calibration_id"], "reference_table": "calibration.csv", "reference_columns": ["calibration_id"], "allow_empty": true}
+      ]
+    },
+    "traces.csv": {
+      "primary_key": ["injection_id", "detector_channel", "point_index"],
+      "columns": {
+        "injection_id": {"type": "string", "format": "identifier", "required": true},
+        "point_index": {"type": "integer", "required": true, "minimum": 0},
+        "time_s": {"type": "number", "required": true, "minimum": 0},
+        "detector_channel": {"type": "string", "format": "identifier", "required": true},
+        "signal_raw": {"type": "number", "required": true},
+        "signal_unit": {"type": "string", "required": true},
+        "signal_corrected": {"type": "number", "required": false},
+        "preprocessing_method": {"type": "string", "required": false},
+        "preprocessing_version": {"type": "string", "required": false}
+      },
+      "foreign_keys": [{"columns": ["injection_id"], "reference_table": "injections.csv", "reference_columns": ["injection_id"]}]
+    },
+    "probe_properties.csv": {
+      "primary_key": ["probe_id"],
+      "columns": {
+        "probe_id": {"type": "string", "format": "identifier", "required": true},
+        "probe_name": {"type": "string", "required": true},
+        "molar_mass_g_mol": {"type": "number", "required": false, "exclusive_minimum": 0},
+        "cross_section_m2": {"type": "number", "required": false, "exclusive_minimum": 0},
+        "gamma_l_d_mJ_m2": {"type": "number", "required": false, "exclusive_minimum": 0},
+        "donor_number_kJ_mol": {"type": "number", "required": false},
+        "acceptor_number_kJ_mol": {"type": "number", "required": false},
+        "carbon_number": {"type": "integer", "required": false, "minimum": 0},
+        "properties_source": {"type": "string", "required": true}
+      }
+    },
+    "calibration.csv": {
+      "primary_key": ["calibration_id"],
+      "columns": {
+        "calibration_id": {"type": "string", "format": "identifier", "required": true},
+        "probe_id": {"type": "string", "format": "identifier", "required": true},
+        "calibration_model": {"type": "string", "required": true, "enum": ["linear", "quadratic", "power_law"]},
+        "parameter_0": {"type": "number", "required": true},
+        "parameter_1": {"type": "number", "required": true},
+        "parameter_2": {"type": "number", "required": false},
+        "area_unit": {"type": "string", "required": true},
+        "amount_unit": {"type": "string", "required": true, "enum": ["mol"]},
+        "calibration_source": {"type": "string", "required": true}
+      },
+      "foreign_keys": [{"columns": ["probe_id"], "reference_table": "probe_properties.csv", "reference_columns": ["probe_id"]}]
+    }
+  }
+}

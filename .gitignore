@@ -1,0 +1,35 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+dist/
+build/
+*.egg
+.eggs/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# IDE
+.vscode/
+.idea/
+.claude/settings.local.json
+*.swp
+*.swo
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Output (generated at runtime)
+output/
+
+# Local governed data and generated bundles
+governed_data/
+local_bundles/
+
+# OS
+.DS_Store
+Thumbs.db

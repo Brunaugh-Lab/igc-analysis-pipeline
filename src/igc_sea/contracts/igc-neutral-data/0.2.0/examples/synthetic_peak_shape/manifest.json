@@ -1,0 +1,18 @@
+{
+  "contract_name": "igc-neutral-data",
+  "contract_version": "0.2.0",
+  "profile": "trace-core",
+  "dataset_id": "synthetic-peak-shape-001",
+  "created_at": "2026-01-15T09:30:00-05:00",
+  "adapter_version": "synthetic-fixture-0.2.0",
+  "files": {
+    "experiment.csv": {"row_count": 1, "sha256": "652a0c40fbf23d8727cdb434a65e913326baec34271dc3dccc17da7391f1435d"},
+    "columns.csv": {"row_count": 1, "sha256": "048819086f6122a936eb0c5a2121a826b0bf562c109e716574ab4a5cb8397ea7"},
+    "conditions.csv": {"row_count": 32, "sha256": "ba49b9d6f1c860d7a041fb42278ed5f5cc67ffa6cf3df6c08ed8940aac648f1f"},
+    "injections.csv": {"row_count": 4, "sha256": "acc0207cf0900bbbc5f9882bef9d8bab54b76ec2c489857a19a427c6b853ed73"},
+    "injection_components.csv": {"row_count": 4, "sha256": "c9a973d7c69aeeb8867742b9b64054c7d51feca6478f2e2b4be97fae306d1c02"},
+    "traces.csv": {"row_count": 60, "sha256": "7e29e5b75d9a9dba80afee4f30eaac6008ddb59b2acb14db7f49227676deeeac"},
+    "probe_properties.csv": {"row_count": 2, "sha256": "73128fb8b63aa50c177c68c81235b22353fa9d76e1278c033cc55ffbaabdcc4e"},
+    "calibration.csv": {"row_count": 1, "sha256": "28670798378958b8af260fadeb6f21d7a481108ecb17b5129b042d4c81ea219c"}
+  }
+}

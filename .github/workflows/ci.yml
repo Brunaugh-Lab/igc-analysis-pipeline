@@ -1,0 +1,142 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  tests:
+    name: Tests (Python ${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.10", "3.11", "3.12", "3.13", "3.14"]
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Install uv and Python
+        uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
+        with:
+          version: "0.11.19"
+          python-version: ${{ matrix.python-version }}
+          enable-cache: true
+          cache-suffix: tests-${{ matrix.python-version }}
+
+      - name: Install locked dependencies
+        run: uv sync --locked --all-extras
+
+      - name: Run tests
+        run: uv run pytest -q
+
+  quality:
+    name: Lock and lint
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Install uv and Python
+        uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
+        with:
+          version: "0.11.19"
+          python-version: "3.12"
+          enable-cache: true
+          cache-suffix: quality
+
+      - name: Verify lockfile
+        run: uv lock --check
+
+      - name: Install locked dependencies
+        run: uv sync --locked --all-extras
+
+      - name: Run release-blocking lint checks
+        run: uv run ruff check .
+
+  package:
+    name: Build and smoke-test distributions
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Install uv and Python
+        uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
+        with:
+          version: "0.11.19"
+          python-version: "3.12"
+          enable-cache: true
+          cache-suffix: package
+
+      - name: Build source and wheel distributions
+        run: uv build
+
+      - name: Smoke-test wheel commands
+        run: |
+          uv run --isolated --no-project --with dist/*.whl igc-full-peak --help
+          uv run --isolated --no-project --with dist/*.whl igc-ssa-dose --help
+
+      - name: Run wheel end to end on synthetic data
+        run: |
+          uv run --isolated --no-project --with dist/*.whl igc-full-peak \
+            --neutral-bundle synthetic=src/igc_sea/contracts/igc-neutral-data/0.2.0/examples/synthetic_peak_shape \
+            --models none,henry \
+            --n-cells 40 \
+            --n-starts 1 \
+            --no-lodo \
+            --output wheel-smoke-output
+          test -s wheel-smoke-output/full_peak_run.json
+          test -s wheel-smoke-output/README.md
+
+      - name: Smoke-test source distribution
+        run: uv run --isolated --no-project --with dist/*.tar.gz igc-full-peak --help
+
+  dependency-audit:
+    name: Dependency audit
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Install uv and Python
+        uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
+        with:
+          version: "0.11.19"
+          python-version: "3.12"
+          enable-cache: true
+          cache-suffix: dependency-audit
+
+      - name: Install locked audit tooling
+        run: uv sync --locked --all-extras
+
+      - name: Export and audit locked runtime dependencies
+        run: |
+          uv export --locked --no-dev --no-emit-project \
+            --output-file locked-runtime-requirements.txt
+          uv run pip-audit --requirement locked-runtime-requirements.txt

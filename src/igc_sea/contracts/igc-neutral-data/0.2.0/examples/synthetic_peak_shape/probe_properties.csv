@@ -1,0 +1,3 @@
+probe_id,probe_name,molar_mass_g_mol,cross_section_m2,gamma_l_d_mJ_m2,donor_number_kJ_mol,acceptor_number_kJ_mol,carbon_number,properties_source
+probe-dead-time,synthetic dead-time marker,16.0,2.0e-19,,,,,synthetic-fixture
+probe-alpha,synthetic probe alpha,86.0,4.5e-19,20.0,,,6,synthetic-fixture

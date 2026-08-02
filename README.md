@@ -1,0 +1,180 @@
+# igc-sea
+
+A source-neutral Python toolkit for inverse gas chromatography analysis. Public
+workflows accept documented tabular inputs and do not contain protected IGC
+acquisition-file access, acquisition-format interpretation, credentials, or
+third-party comparison adapters. A generic particle-size CSV reader remains
+for the geometric surface-area dosing utility.
+
+## Current release boundary
+
+The implemented end-to-end chromatography workflow is full-peak nonlinear
+analysis through `igc-neutral-data/0.2.0`. The repository also provides a
+geometric surface-area dosing utility.
+
+Calculation modules for BET, dispersive surface energy, acid-base analysis,
+retention, peak detection, and quality control remain available for development
+and unit testing. Their former source-coupled command-line workflows have been
+removed. They will be exposed again only after neutral-contract consumers and
+source-attributed property requirements are complete.
+
+## Installation
+
+Python 3.10 or newer is required.
+
+```bash
+git clone https://github.com/Brunaugh-Lab/igc-analysis-pipeline.git
+cd igc-analysis-pipeline
+python -m venv .venv
+source .venv/bin/activate
+python -m pip install -e ".[dev]"
+```
+
+On Windows PowerShell, activate the environment with:
+
+```powershell
+.venv\Scripts\Activate.ps1
+```
+
+No acquisition-system runtime or source-specific library is required by this
+repository.
+
+## Full-peak analysis
+
+Each input must be a validated `igc-neutral-data/0.2.0` bundle. Supply one
+opaque label per independently characterized acquisition block:
+
+```bash
+igc-full-peak \
+  --neutral-bundle block-001=/path/to/neutral_block_001 \
+  --neutral-bundle block-002=/path/to/neutral_block_002 \
+  --transport-mode bracket_interpolated \
+  --output output/full_peak
+```
+
+The command validates hashes, row counts, headers, units, controlled values,
+ordering, keys, calibration consistency, and scientific provenance before any
+analysis runs. It then:
+
+1. preserves and baseline-corrects each complete detector trace;
+2. applies the declared area-to-amount calibration;
+3. converts the trace to outlet concentration while conserving injected mass;
+4. characterizes dead-time transport independently within each block;
+5. fits candidate adsorption models jointly across injections;
+6. reports parameter identifiability, model comparison, residuals, sensitivity,
+   and a gated surface-area verdict.
+
+Outputs include analysis-ready CSV tables, vector and raster figures, a
+machine-readable run record, and a Markdown interpretation summary. Local input
+paths are not copied into the run record.
+
+See `docs/full_peak_architecture.md` for the model and
+`docs/neutral_data_contract.md` for the input boundary.
+
+### Runnable synthetic example
+
+From a source checkout, the bundled synthetic fixture exercises the complete
+command without using experimental data:
+
+```bash
+igc-full-peak \
+  --neutral-bundle synthetic=src/igc_sea/contracts/igc-neutral-data/0.2.0/examples/synthetic_peak_shape \
+  --models none,henry \
+  --n-cells 40 \
+  --n-starts 1 \
+  --no-lodo \
+  --output output/synthetic-smoke
+```
+
+The reduced model set, grid, and disabled cross-validation make this a quick
+installation check. Remove those speed-oriented options for a scientific run
+and review every generated diagnostic before interpreting the result.
+
+## Neutral contract
+
+The bundled contract lives at:
+
+```text
+src/igc_sea/contracts/igc-neutral-data/0.2.0/
+```
+
+It includes:
+
+- `schema.json` — logical schema and controlled values;
+- `FIELD_DICTIONARY.md` — field meaning, units, and scientific boundaries;
+- `validate_bundle.py` — dependency-free validator;
+- `MIGRATION.md` — compatibility rules;
+- `examples/synthetic_peak_shape/` — fully synthetic example bundle.
+
+Validate a bundle directly with:
+
+```bash
+python src/igc_sea/contracts/igc-neutral-data/0.2.0/validate_bundle.py \
+  /path/to/neutral_bundle
+```
+
+Contract `0.1.0` was an experimental baseline and is not accepted by the
+current reader. Inputs are never silently coerced between contract versions.
+
+## Other commands
+
+Geometric surface-area dosing consumes cumulative volume-distribution data:
+
+```bash
+igc-ssa-dose /path/to/distribution.csv --density 1.2
+```
+
+Use each command's `--help` output for its current options.
+
+## Scientific guardrails
+
+- Structural contract validity does not establish scientific reportability.
+- Each bundle currently represents one experiment and one acquisition block.
+- Multiple blocks are never pooled for dead-time characterization.
+- Study relationships and replicate structure must be declared outside the
+  core acquisition bundle until a versioned study-design contract exists.
+- Peak asymmetry is not uniquely diagnostic of energetic heterogeneity;
+  transport, packing, diffusion, baseline, dose nonlinearity, and detector
+  behavior remain alternative explanations.
+- A fitted adsorption model does not automatically justify a monolayer capacity
+  or specific surface area. Those outputs are gated by model structure and
+  parameter identifiability.
+- Probe properties and calibration parameters must retain their declared
+  provenance. Public analysis does not silently substitute source-specific
+  defaults.
+
+## Development
+
+```bash
+python -m pytest
+ruff check .
+python -m build
+```
+
+Tests use synthetic inputs unless a governed integration test is explicitly
+enabled outside this repository. Real experimental bundles must not be added to
+Git.
+
+GitHub Actions verifies the locked environment, runs the test suite on Python
+3.10 through 3.14, enforces release-blocking lint checks, builds and installs
+both distribution formats, runs the full-peak wheel on synthetic data, and
+audits the locked runtime dependencies for known vulnerabilities.
+
+## Repository structure
+
+```text
+src/igc_sea/
+├── analysis/       Scientific calculations and QC
+├── cli/            Supported command-line entry points
+├── contracts/      Versioned neutral input contract and synthetic fixture
+├── io/             Neutral-bundle and particle-size readers
+└── plotting/       Reusable figure generation
+tests/               Synthetic and calculation-level tests
+docs/                Architecture and contract documentation
+```
+
+## Release status
+
+The repository is still undergoing public-release review. License authority,
+scientific-reference provenance, maintainership metadata, and the final
+visibility decision remain separate release gates.

@@ -1,0 +1,5 @@
+injection_id,component_index,probe_id,component_role,target_amount_mol,calibration_id,saturation_vapor_pressure_Pa,vapor_pressure_source,vapor_pressure_model_id
+injection-000,0,probe-dead-time,dead_time_marker,1.0e-8,,,,
+injection-001,0,probe-alpha,analyte,1.0e-7,calibration-alpha,12000,synthetic-fixture,synthetic-constant-v1
+injection-002,0,probe-alpha,analyte,5.0e-7,calibration-alpha,12000,synthetic-fixture,synthetic-constant-v1
+injection-003,0,probe-dead-time,dead_time_marker,1.0e-8,,,,
