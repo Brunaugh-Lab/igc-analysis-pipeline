@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=68.0", "wheel"]
+requires = ["setuptools>=77.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -7,6 +7,14 @@ name = "igc-analysis-pipeline"
 version = "2026.7.31"
 description = "Source-neutral analysis toolkit for inverse gas chromatography data"
 readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [
+    { name = "Ashlee Brunaugh", email = "brunaugh@umich.edu" },
+]
+maintainers = [
+    { name = "Ashlee Brunaugh", email = "brunaugh@umich.edu" },
+]
 requires-python = ">=3.10"
 dependencies = [
     "pandas>=2.0",
@@ -14,6 +22,11 @@ dependencies = [
     "seaborn>=0.12",
     "scipy>=1.10",
 ]
+
+[project.urls]
+Homepage = "https://github.com/Brunaugh-Lab/igc-analysis-pipeline"
+Repository = "https://github.com/Brunaugh-Lab/igc-analysis-pipeline"
+Issues = "https://github.com/Brunaugh-Lab/igc-analysis-pipeline/issues"
 
 [project.optional-dependencies]
 dev = [

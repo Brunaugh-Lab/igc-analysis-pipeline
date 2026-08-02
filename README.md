@@ -179,8 +179,21 @@ docs/                Architecture and contract documentation
 
 ## Release status
 
-The repository is still undergoing public-release review. License authority,
-scientific-reference provenance, maintainership metadata, and the final
-visibility decision remain separate release gates. The current gate status and
-the verification required immediately before a visibility change are recorded
-in `docs/public_release_checklist.md`.
+The repository owner approved release under the MIT License and public
+visibility after the content, history, package, and reproducibility checks in
+the release checklist pass.
+
+Scientific-reference provenance remains an ongoing documentation task rather
+than permission to overinterpret results. The completed release evidence and
+post-release checks are recorded in `docs/public_release_checklist.md`.
+
+## Citation
+
+If you use this software, cite the metadata in `CITATION.cff`. A
+version-specific DOI and an all-versions concept DOI will be added after the
+first public GitHub release is archived by Zenodo.
+
+## License
+
+Copyright (c) 2026 Ashlee Brunaugh. This project is distributed under the MIT
+License; see `LICENSE` for the complete terms.

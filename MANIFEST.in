@@ -1,3 +1,4 @@
 include CONTRIBUTING.md
+include CITATION.cff
 recursive-include docs *.md
 include scripts/check_public_release_boundary.py
