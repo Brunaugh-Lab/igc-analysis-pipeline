@@ -4,7 +4,7 @@ import math
 
 import pytest
 
-from igc_sea.analysis.probes import ProbeError, ProbeProperties
+from igc_analysis.analysis.probes import ProbeError, ProbeProperties
 
 
 def _properties(**overrides) -> ProbeProperties:

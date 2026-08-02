@@ -27,8 +27,8 @@ import numpy as np
 import pandas as pd
 from scipy import stats
 
-from igc_sea.constants import R_GAS, N_AVOGADRO, A_CH2, gamma_ch2
-from igc_sea.analysis.retention import (
+from igc_analysis.constants import R_GAS, N_AVOGADRO, A_CH2, gamma_ch2
+from igc_analysis.analysis.retention import (
     net_retention_volume,
     specific_retention_volume,
 )
@@ -145,7 +145,7 @@ def calculate_net_retention_volume(
 ) -> float:
     """Calculate net retention volume V_N from retention time.
 
-    Convenience wrapper around :func:`igc_sea.analysis.retention.net_retention_volume`.
+    Convenience wrapper around :func:`igc_analysis.analysis.retention.net_retention_volume`.
 
     Parameters
     ----------

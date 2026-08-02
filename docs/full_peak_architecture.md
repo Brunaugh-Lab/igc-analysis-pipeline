@@ -1,6 +1,6 @@
 # Full-peak nonlinear inverse chromatography — architecture
 
-Status: implemented. Entry point `igc-full-peak` / `igc_sea.analysis.full_peak`.
+Status: implemented. Entry point `igc-full-peak` / `igc_analysis.analysis.full_peak`.
 
 ## Motivation
 

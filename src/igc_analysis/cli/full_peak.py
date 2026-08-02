@@ -38,15 +38,15 @@ import pandas as pd
 matplotlib.rcParams["pdf.fonttype"] = 42
 matplotlib.rcParams["ps.fonttype"] = 42
 
-from igc_sea.analysis.full_peak import (
+from igc_analysis.analysis.full_peak import (
     CONDITION_LIMIT, CORRELATION_LIMIT, DEFAULT_N_CELLS,
     IDENTIFIABILITY_RSE_LIMIT, bracket_assignment_to_dataframe,
     build_trace_dataset_from_neutral, compare_models,
     compute_ssa_if_identifiable, predict_injection, recovered_isotherm,
     traces_to_dataframe, transport_sensitivity, transport_to_dataframe,
 )
-from igc_sea.analysis.isotherm_models import MODELS, get_model
-from igc_sea.analysis.column_model import peak_moments
+from igc_analysis.analysis.isotherm_models import MODELS, get_model
+from igc_analysis.analysis.column_model import peak_moments
 
 PNG_DPI = 300
 NEUTRAL_LABEL_PATTERN = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$")
@@ -341,8 +341,8 @@ def _write_readme(out_dir, blocks, fits, table, best_name, ssa_verdict,
     a = lines.append
     a("# Full-peak nonlinear inverse chromatography — results\n")
     a(f"Generated {settings['generated_utc']} with "
-      f"`igc-sea` {settings['package_version']} "
-      f"(commit-independent module `igc_sea.analysis.full_peak`).\n")
+      f"`igc-analysis-pipeline` {settings['package_version']} "
+      f"(commit-independent module `igc_analysis.analysis.full_peak`).\n")
 
     a("## What this is\n")
     mode = blocks[0].injections[0].transport_mode
@@ -607,7 +607,7 @@ def main(argv=None):
     if args.cross_section is not None:
         a_cross = args.cross_section
     else:
-        from igc_sea.io.neutral_data import read_neutral_bundle
+        from igc_analysis.io.neutral_data import read_neutral_bundle
 
         neutral = read_neutral_bundle(next(iter(neutral_bundles.values())))
         properties = neutral.table("probe_properties.csv")
@@ -629,7 +629,7 @@ def main(argv=None):
     _plot_bracket_assignments(assignments, out_dir)
 
     # --- Machine-readable run record ---
-    from igc_sea import __version__ as pkg_version
+    from igc_analysis import __version__ as pkg_version
     input_mode = "igc-neutral-data/0.2.0"
     limitations = [
         "Each input mapping is treated as one independently characterised block.",
@@ -651,7 +651,7 @@ def main(argv=None):
         )
 
     neutral_input_provenance = {}
-    from igc_sea.io.neutral_data import read_neutral_bundle
+    from igc_analysis.io.neutral_data import read_neutral_bundle
 
     for label, path in neutral_bundles.items():
         neutral = read_neutral_bundle(path)

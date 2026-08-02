@@ -5,7 +5,7 @@ from __future__ import annotations
 import numpy as np
 import matplotlib.pyplot as plt
 
-from igc_sea.plotting.theme import get_palette, SINGLE_COL, DOUBLE_COL
+from igc_analysis.plotting.theme import get_palette, SINGLE_COL, DOUBLE_COL
 
 
 def plot_chromatogram(

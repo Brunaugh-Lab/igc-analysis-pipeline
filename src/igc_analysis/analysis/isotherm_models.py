@@ -14,7 +14,7 @@ Units convention (used consistently across the full-peak pipeline):
 capacity can support a monolayer/SSA calculation.  ``has_finite_capacity``
 records that, and ``capacity_param`` names the parameter.  A cooperative or
 power-law isotherm has no monolayer, and the pipeline must not manufacture
-one — see :func:`igc_sea.analysis.full_peak.compute_ssa_if_identifiable`.
+one — see :func:`igc_analysis.analysis.full_peak.compute_ssa_if_identifiable`.
 
 References
 ----------

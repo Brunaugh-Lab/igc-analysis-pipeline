@@ -1,6 +1,6 @@
 """Readers for source-neutral analysis inputs."""
 
-from igc_sea.io.neutral_data import (
+from igc_analysis.io.neutral_data import (
     NeutralBundle,
     NeutralContractError,
     bundled_contract_path,

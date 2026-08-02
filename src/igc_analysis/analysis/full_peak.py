@@ -3,7 +3,7 @@
 Instead of reducing each injection to a peak-maximum or centre-of-mass
 retention time, this module keeps the complete baseline-corrected FID trace and
 fits a forward equilibrium-dispersive column model (see
-:mod:`igc_sea.analysis.column_model`) to **all** injections jointly, so an
+:mod:`igc_analysis.analysis.column_model`) to **all** injections jointly, so an
 adsorption isotherm is identified from peak shape.
 
 Pipeline
@@ -31,13 +31,13 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-from igc_sea.constants import R_GAS
-from igc_sea.analysis.column_model import (
+from igc_analysis.constants import R_GAS
+from igc_analysis.analysis.column_model import (
     ColumnGeometry, MethaneTransport, SolveResult, TransportParams,
     characterize_methane_transport, make_geometry, solve_column,
     peak_moments,
 )
-from igc_sea.analysis.isotherm_models import (
+from igc_analysis.analysis.isotherm_models import (
     IsothermModel, get_model, is_cooperative,
 )
 
@@ -242,8 +242,8 @@ def build_trace_dataset_from_neutral(
     schema. Each mapping entry is one independently characterized block.
     """
 
-    from igc_sea.analysis.peak_detection import detect_baseline, subtract_baseline
-    from igc_sea.io.neutral_data import read_neutral_bundle
+    from igc_analysis.analysis.peak_detection import detect_baseline, subtract_baseline
+    from igc_analysis.io.neutral_data import read_neutral_bundle
 
     valid_modes = {"fixed_block_mean", "bracket_interpolated",
                    "bracket_pre", "bracket_post"}
@@ -1108,7 +1108,7 @@ def compute_ssa_if_identifiable(
     Otherwise no number is produced.  The measured/predicted P/P0 ratio is
     never converted into an SSA correction.
     """
-    from igc_sea.constants import N_AVOGADRO
+    from igc_analysis.constants import N_AVOGADRO
 
     model = get_model(fit.model_name)
 

@@ -1,4 +1,4 @@
-# igc-sea
+# igc-analysis-pipeline
 
 A source-neutral Python toolkit for inverse gas chromatography analysis. Public
 workflows accept documented tabular inputs and do not contain protected IGC
@@ -78,7 +78,7 @@ command without using experimental data:
 
 ```bash
 igc-full-peak \
-  --neutral-bundle synthetic=src/igc_sea/contracts/igc-neutral-data/0.2.0/examples/synthetic_peak_shape \
+  --neutral-bundle synthetic=src/igc_analysis/contracts/igc-neutral-data/0.2.0/examples/synthetic_peak_shape \
   --models none,henry \
   --n-cells 40 \
   --n-starts 1 \
@@ -95,7 +95,7 @@ and review every generated diagnostic before interpreting the result.
 The bundled contract lives at:
 
 ```text
-src/igc_sea/contracts/igc-neutral-data/0.2.0/
+src/igc_analysis/contracts/igc-neutral-data/0.2.0/
 ```
 
 It includes:
@@ -109,7 +109,7 @@ It includes:
 Validate a bundle directly with:
 
 ```bash
-python src/igc_sea/contracts/igc-neutral-data/0.2.0/validate_bundle.py \
+python src/igc_analysis/contracts/igc-neutral-data/0.2.0/validate_bundle.py \
   /path/to/neutral_bundle
 ```
 
@@ -155,6 +155,10 @@ Tests use synthetic inputs unless a governed integration test is explicitly
 enabled outside this repository. Real experimental bundles must not be added to
 Git.
 
+Before contributing, read `CONTRIBUTING.md`. The repository includes a CI
+boundary check that rejects tracked files under the reserved local-data paths;
+`.gitignore` is not the only protection against accidental recommitment.
+
 GitHub Actions verifies the locked environment, runs the test suite on Python
 3.10 through 3.14, enforces release-blocking lint checks, builds and installs
 both distribution formats, runs the full-peak wheel on synthetic data, and
@@ -163,7 +167,7 @@ audits the locked runtime dependencies for known vulnerabilities.
 ## Repository structure
 
 ```text
-src/igc_sea/
+src/igc_analysis/
 ├── analysis/       Scientific calculations and QC
 ├── cli/            Supported command-line entry points
 ├── contracts/      Versioned neutral input contract and synthetic fixture
@@ -177,4 +181,6 @@ docs/                Architecture and contract documentation
 
 The repository is still undergoing public-release review. License authority,
 scientific-reference provenance, maintainership metadata, and the final
-visibility decision remain separate release gates.
+visibility decision remain separate release gates. The current gate status and
+the verification required immediately before a visibility change are recorded
+in `docs/public_release_checklist.md`.

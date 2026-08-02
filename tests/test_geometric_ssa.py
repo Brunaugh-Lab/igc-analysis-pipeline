@@ -5,8 +5,8 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-from igc_sea.analysis.geometric_ssa import calculate_d32
-from igc_sea.io.particle_size import VolumeDistribution, read_cumulative_q3
+from igc_analysis.analysis.geometric_ssa import calculate_d32
+from igc_analysis.io.particle_size import VolumeDistribution, read_cumulative_q3
 
 
 def _distribution(q=(0.0, 50.0, 100.0)):

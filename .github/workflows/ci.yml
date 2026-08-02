@@ -65,6 +65,9 @@ jobs:
       - name: Verify lockfile
         run: uv lock --check
 
+      - name: Enforce public-release tracked-path boundary
+        run: python scripts/check_public_release_boundary.py
+
       - name: Install locked dependencies
         run: uv sync --locked --all-extras
 
@@ -101,7 +104,7 @@ jobs:
       - name: Run wheel end to end on synthetic data
         run: |
           uv run --isolated --no-project --with dist/*.whl igc-full-peak \
-            --neutral-bundle synthetic=src/igc_sea/contracts/igc-neutral-data/0.2.0/examples/synthetic_peak_shape \
+            --neutral-bundle synthetic=src/igc_analysis/contracts/igc-neutral-data/0.2.0/examples/synthetic_peak_shape \
             --models none,henry \
             --n-cells 40 \
             --n-starts 1 \

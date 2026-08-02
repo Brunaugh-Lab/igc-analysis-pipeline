@@ -39,8 +39,8 @@ import numpy as np
 import pandas as pd
 from scipy import stats
 
-from igc_sea.constants import R_GAS, N_AVOGADRO
-from igc_sea.utils import PROBE_MOLECULES, get_probe
+from igc_analysis.constants import R_GAS, N_AVOGADRO
+from igc_analysis.utils import PROBE_MOLECULES, get_probe
 
 
 # ---------------------------------------------------------------------------

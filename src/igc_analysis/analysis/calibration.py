@@ -20,7 +20,7 @@ where:
 
 from __future__ import annotations
 
-from igc_sea.constants import N_AVOGADRO
+from igc_analysis.constants import N_AVOGADRO
 
 
 def moles_from_area(peak_area: float, C1: float, C2: float) -> float:

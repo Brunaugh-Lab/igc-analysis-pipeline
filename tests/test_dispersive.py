@@ -8,16 +8,16 @@ import sys
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "src"))
 
-from igc_sea.constants import R_GAS, N_AVOGADRO, A_CH2, gamma_ch2
-from igc_sea.analysis.dispersive import dorris_gray_gamma_d, calculate_net_retention_volume
-from igc_sea.analysis.retention import james_martin_correction, net_retention_volume, specific_retention_volume
-from igc_sea.analysis.peak_detection import (
+from igc_analysis.constants import R_GAS, N_AVOGADRO, A_CH2, gamma_ch2
+from igc_analysis.analysis.dispersive import dorris_gray_gamma_d, calculate_net_retention_volume
+from igc_analysis.analysis.retention import james_martin_correction, net_retention_volume, specific_retention_volume
+from igc_analysis.analysis.peak_detection import (
     detect_baseline, subtract_baseline, find_peak_max, find_peak_cofm,
     integrate_peak, process_chromatogram,
     asymmetry_factor, tailing_factor, _half_widths_at_fraction,
 )
-from igc_sea.analysis.interpolation import interpolate_to_coverage
-from igc_sea.analysis.calibration import (
+from igc_analysis.analysis.interpolation import interpolate_to_coverage
+from igc_analysis.analysis.calibration import (
     moles_from_area, monolayer_capacity, actual_coverage,
 )
 

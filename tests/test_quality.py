@@ -8,7 +8,7 @@ import sys
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "src"))
 
-from igc_sea.analysis.quality import (
+from igc_analysis.analysis.quality import (
     check_alkane_count,
     check_com_divergence,
     check_gamma_d_bounds,

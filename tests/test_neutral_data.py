@@ -10,16 +10,16 @@ from types import SimpleNamespace
 import numpy as np
 import pytest
 
-from igc_sea.analysis.full_peak import (
+from igc_analysis.analysis.full_peak import (
     build_trace_dataset_from_neutral,
     traces_to_dataframe,
 )
-from igc_sea.io.neutral_data import (
+from igc_analysis.io.neutral_data import (
     NeutralContractError,
     bundled_contract_path,
     read_neutral_bundle,
 )
-from igc_sea.cli.full_peak import _json_safe, _parse_neutral_bundles
+from igc_analysis.cli.full_peak import _json_safe, _parse_neutral_bundles
 
 
 @pytest.fixture()

@@ -14,7 +14,7 @@ import math
 import numpy as np
 import pytest
 
-from igc_sea.analysis.bet import (
+from igc_analysis.analysis.bet import (
     saturation_pressure,
     partial_pressure_ratio,
     eluted_peak_concentration,
@@ -35,8 +35,8 @@ from igc_sea.analysis.bet import (
     _InjectionRecord,
     _is_clipped,
 )
-from igc_sea.analysis.probes import ProbeProperties
-from igc_sea.constants import R_GAS, N_AVOGADRO
+from igc_analysis.analysis.probes import ProbeProperties
+from igc_analysis.constants import R_GAS, N_AVOGADRO
 
 
 # ---------------------------------------------------------------------------

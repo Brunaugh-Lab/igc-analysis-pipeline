@@ -5,7 +5,7 @@ from types import SimpleNamespace
 import numpy as np
 import pandas as pd
 
-from igc_sea.cli.full_peak import (
+from igc_analysis.cli.full_peak import (
     _plot_bracket_assignments,
     _scientific_interpretation_lines,
 )

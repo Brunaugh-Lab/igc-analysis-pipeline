@@ -26,8 +26,8 @@ from dataclasses import dataclass, field
 
 import numpy as np
 
-from igc_sea.constants import R_GAS, N_AVOGADRO
-from igc_sea.analysis.probes import ProbeProperties, ProbeSelection
+from igc_analysis.constants import R_GAS, N_AVOGADRO
+from igc_analysis.analysis.probes import ProbeProperties, ProbeSelection
 
 
 # ---------------------------------------------------------------------------

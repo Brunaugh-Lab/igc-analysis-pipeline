@@ -8,7 +8,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-from igc_sea.io.particle_size import VolumeDistribution, read_cumulative_q3
+from igc_analysis.io.particle_size import VolumeDistribution, read_cumulative_q3
 
 
 @dataclass(frozen=True)

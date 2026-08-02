@@ -9,7 +9,7 @@ import sys
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "src"))
 
-from igc_sea.analysis.acid_base import (
+from igc_analysis.analysis.acid_base import (
     schultz_parameter,
     schultz_reference_line,
     calculate_delta_g_sp,
@@ -24,8 +24,8 @@ from igc_sea.analysis.acid_base import (
     run_acid_base_analysis,
     _resolve_probe,
 )
-from igc_sea.constants import R_GAS, N_AVOGADRO
-from igc_sea.utils import get_probe
+from igc_analysis.constants import R_GAS, N_AVOGADRO
+from igc_analysis.utils import get_probe
 
 
 # ---------------------------------------------------------------------------

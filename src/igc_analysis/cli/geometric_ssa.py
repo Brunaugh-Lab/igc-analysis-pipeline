@@ -5,7 +5,7 @@ from __future__ import annotations
 import argparse
 from pathlib import Path
 
-from igc_sea.analysis.geometric_ssa import analyze_distribution_path, summarize_replicates
+from igc_analysis.analysis.geometric_ssa import analyze_distribution_path, summarize_replicates
 
 
 def main(argv=None):

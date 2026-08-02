@@ -59,7 +59,7 @@ from dataclasses import dataclass
 
 import numpy as np
 
-from igc_sea.analysis.isotherm_models import IsothermModel
+from igc_analysis.analysis.isotherm_models import IsothermModel
 
 
 @dataclass
@@ -356,7 +356,7 @@ def characterize_methane_transport(
     -------
     MethaneTransport
     """
-    from igc_sea.analysis.isotherm_models import NO_ADSORPTION
+    from igc_analysis.analysis.isotherm_models import NO_ADSORPTION
 
     m1s, sigmas, Ns = [], [], []
     for t, s in traces:

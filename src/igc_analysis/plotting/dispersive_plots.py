@@ -12,8 +12,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
 
-from igc_sea.constants import R_GAS
-from igc_sea.plotting.theme import get_palette, SINGLE_COL, DOUBLE_COL
+from igc_analysis.constants import R_GAS
+from igc_analysis.plotting.theme import get_palette, SINGLE_COL, DOUBLE_COL
 
 
 def plot_alkane_line(

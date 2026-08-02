@@ -14,20 +14,20 @@ from __future__ import annotations
 import numpy as np
 import pytest
 
-from igc_sea.analysis.column_model import (
+from igc_analysis.analysis.column_model import (
     ColumnGeometry, MethaneTransport, TransportParams, apparent_plate_number,
     characterize_methane_transport, make_geometry, peak_moments, solve_column,
 )
-from igc_sea.analysis.isotherm_models import (
+from igc_analysis.analysis.isotherm_models import (
     C_FLOOR, FREUNDLICH, HENRY, LANGMUIR, MODELS, NO_ADSORPTION, get_model,
     is_cooperative,
 )
-from igc_sea.analysis.full_peak import (
+from igc_analysis.analysis.full_peak import (
     BlockData, Injection, bracket_assignment_to_dataframe, compare_models,
     compute_ssa_if_identifiable, fit_model, predict_injection,
     recovered_isotherm, traces_to_dataframe, transport_to_dataframe,
 )
-from igc_sea.constants import R_GAS
+from igc_analysis.constants import R_GAS
 
 # --- Common synthetic setup -------------------------------------------------
 
@@ -493,7 +493,7 @@ class TestIdentifiabilityAndSSA:
 
 class TestTransportSensitivity:
     def test_sensitivity_reports_all_scenarios(self):
-        from igc_sea.analysis.full_peak import transport_sensitivity
+        from igc_analysis.analysis.full_peak import transport_sensitivity
         blk = _synth_block("henry", [2.5e-6], [4e-7, 2e-7], n_time=300)
         blk.transport.t0_sd_min = 0.01
         fit = fit_model([blk], "henry", n_starts=1, n_cells=NZ, verbose=False)
@@ -508,7 +508,7 @@ class TestTransportSensitivity:
         assert sens.loc[sens["scenario"] == "base", "K_H_pct_change"].iloc[0] == 0.0
 
     def test_single_marker_omits_vacuous_t0_sensitivity(self):
-        from igc_sea.analysis.full_peak import transport_sensitivity
+        from igc_analysis.analysis.full_peak import transport_sensitivity
         blk = _synth_block("henry", [2.5e-6], [4e-7], n_time=250)
         blk.transport.n_markers = 1
         blk.transport.t0_sd_min = float("nan")
@@ -518,7 +518,7 @@ class TestTransportSensitivity:
 
     def test_t0_sensitivity_rebuilds_fixed_mode_geometry(self, monkeypatch):
         from types import SimpleNamespace
-        import igc_sea.analysis.full_peak as full_peak
+        import igc_analysis.analysis.full_peak as full_peak
 
         blk = _synth_block("henry", [2.5e-6], [4e-7], n_time=250)
         blk.transport.t0_sd_min = 0.01
@@ -545,7 +545,7 @@ class TestTransportSensitivity:
     def test_dispersion_perturbation_moves_parameter(self):
         """Changing the assumed plate number should measurably move K_H —
         that is the point of reporting the sensitivity."""
-        from igc_sea.analysis.full_peak import transport_sensitivity
+        from igc_analysis.analysis.full_peak import transport_sensitivity
         blk = _synth_block("henry", [2.5e-6], [4e-7, 2e-7], n_time=300)
         fit = fit_model([blk], "henry", n_starts=1, n_cells=NZ, verbose=False)
         sens = transport_sensitivity([blk], "henry", fit.params, n_cells=NZ)

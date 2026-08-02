@@ -4,7 +4,7 @@ The public analysis package accepts `igc-neutral-data/0.2.0` bundles. Protected-
 
 ## Validation before analysis
 
-`igc_sea.io.read_neutral_bundle()` runs the bundled dependency-free validator before exposing any table. Validation covers manifest hashes and row counts, exact headers, controlled units and values, ordering, identifiers, foreign keys, trace continuity, calibration consistency, and cross-table scientific provenance.
+`igc_analysis.io.read_neutral_bundle()` runs the bundled dependency-free validator before exposing any table. Validation covers manifest hashes and row counts, exact headers, controlled units and values, ordering, identifiers, foreign keys, trace continuity, calibration consistency, and cross-table scientific provenance.
 
 Structural validity is necessary but not sufficient for an analysis. Each workflow must separately check that its required probes, calibration, conditions, dead-time relationship, sample metadata, and study design are present.
 
