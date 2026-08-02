@@ -3,6 +3,7 @@ message: "If you use this software, please cite it using the metadata below."
 title: "IGC Analysis Pipeline"
 type: software
 version: "2026.7.31"
+date-released: 2026-08-02
 license: "MIT"
 authors:
   - family-names: "Brunaugh"
