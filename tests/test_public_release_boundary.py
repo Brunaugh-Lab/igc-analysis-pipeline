@@ -1,6 +1,15 @@
-from pathlib import PurePosixPath
+import importlib.util
+from pathlib import Path, PurePosixPath
 
-from scripts.check_public_release_boundary import RESERVED_PREFIXES, is_reserved
+
+BOUNDARY_SCRIPT = Path(__file__).resolve().parents[1] / "scripts" / "check_public_release_boundary.py"
+SPEC = importlib.util.spec_from_file_location("check_public_release_boundary", BOUNDARY_SCRIPT)
+assert SPEC is not None and SPEC.loader is not None
+BOUNDARY_MODULE = importlib.util.module_from_spec(SPEC)
+SPEC.loader.exec_module(BOUNDARY_MODULE)
+
+RESERVED_PREFIXES = BOUNDARY_MODULE.RESERVED_PREFIXES
+is_reserved = BOUNDARY_MODULE.is_reserved
 
 
 def test_reserved_roots_and_descendants_are_rejected():
