@@ -79,8 +79,15 @@ Do not change repository visibility while any item above is unresolved.
 
 ## Post-release verification
 
-- [ ] Clone without authentication into a new temporary directory.
-- [ ] Run the documented installation and synthetic example from that clone.
-- [ ] Inspect the public repository file list, release artifacts, and metadata.
-- [ ] Confirm the private extraction repository and its implementation remain
+- [x] Clone without authentication into a new temporary directory.
+- [x] Run the documented installation and synthetic example from that clone.
+- [x] Inspect the public repository file list, release artifacts, and metadata.
+- [x] Confirm the private extraction repository and its implementation remain
   inaccessible to unauthenticated users.
+
+Verified on 2026-08-02 at commit `e530475`: GitHub reports the repository as
+public, a clone with credential helpers disabled succeeded, the cloned boundary
+check passed, and the documented synthetic full-peak workflow completed. An
+unauthenticated GitHub API request returned `200` for this repository and `404`
+for the private extraction repository. GitHub Actions run `30752878464` passed
+the complete Python 3.10--3.14 release matrix before the visibility change.
