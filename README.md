@@ -1,5 +1,7 @@
 # igc-analysis-pipeline
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.21760976.svg)](https://doi.org/10.5281/zenodo.21760976)
+
 A source-neutral Python toolkit for inverse gas chromatography analysis. Public
 workflows accept documented tabular inputs and do not contain protected IGC
 acquisition-file access, acquisition-format interpretation, credentials, or
@@ -189,9 +191,14 @@ post-release checks are recorded in `docs/public_release_checklist.md`.
 
 ## Citation
 
-If you use this software, cite the metadata in `CITATION.cff`. A
-version-specific DOI and an all-versions concept DOI will be added after the
-first public GitHub release is archived by Zenodo.
+If you use this software for an analysis, cite the archived version you used:
+
+- version `v2026.7.31`: <https://doi.org/10.5281/zenodo.21760977>
+- all-versions concept DOI: <https://doi.org/10.5281/zenodo.21760976>
+
+Use the version DOI in manuscripts that depend on a specific software release.
+Use the concept DOI on websites or when referring to the evolving project
+generally. Machine-readable citation metadata are provided in `CITATION.cff`.
 
 ## License
 

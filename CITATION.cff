@@ -4,6 +4,7 @@ title: "IGC Analysis Pipeline"
 type: software
 version: "2026.7.31"
 date-released: 2026-08-02
+doi: "10.5281/zenodo.21760977"
 license: "MIT"
 authors:
   - family-names: "Brunaugh"
@@ -15,6 +16,10 @@ abstract: >-
   A source-neutral Python toolkit for inverse gas chromatography analysis,
   quality control, plotting, and versioned neutral tabular inputs.
 repository-code: "https://github.com/Brunaugh-Lab/igc-analysis-pipeline"
+identifiers:
+  - type: doi
+    value: "10.5281/zenodo.21760976"
+    description: "Concept DOI representing all versions"
 keywords:
   - "inverse gas chromatography"
   - "surface characterization"
