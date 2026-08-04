@@ -1,0 +1,87 @@
+# Student quick start
+
+This guide is the standard Brunaugh Lab workflow for running the public IGC
+analysis pipeline. It deliberately does not document acquisition-file access.
+Lab members who need to create neutral bundles must also have access to the
+lab's private extraction repository.
+
+## 1. Use a fixed software release
+
+Do not change software versions partway through a study. For the corrected BET
+workflow, use release `v2026.8.4` or a later release selected for the study.
+
+Install Python 3.10 or newer, create an isolated environment, and install the
+pinned release:
+
+```bash
+python -m venv .venv
+source .venv/bin/activate
+python -m pip install "igc-analysis-pipeline @ git+https://github.com/Brunaugh-Lab/igc-analysis-pipeline.git@v2026.8.4"
+```
+
+Confirm the installed version:
+
+```bash
+python -c "import igc_analysis; print(igc_analysis.__version__)"
+```
+
+## 2. Check the installation with synthetic data
+
+This check uses no experimental data:
+
+```bash
+igc-bet --synthetic-example --output output/synthetic-bet
+```
+
+The command should finish successfully and produce a reportable synthetic BET
+fit. This confirms that the software runs; it does not validate an experimental
+dataset.
+
+## 3. Create and validate the neutral bundle
+
+Use the private lab extraction workflow to convert the acquisition data into an
+`igc-neutral-data/0.2.0` bundle. Keep the raw acquisition data, neutral bundle,
+and derived output outside both Git repositories.
+
+Before analysis, validate the bundle with the validator supplied by the private
+workflow or this repository. Do not manually edit a bundle to make validation
+pass. Resolve the source data or metadata issue instead.
+
+## 4. Run the selected analysis
+
+For corrected BET surface area:
+
+```bash
+igc-bet \
+  --neutral-bundle /path/to/neutral_bundle \
+  --output /path/to/results/bet
+```
+
+For full-peak nonlinear analysis, follow the command and model guidance in the
+[main README](../README.md#full-peak-analysis). Use one opaque label for each
+independently characterized acquisition block.
+
+## 5. Review before reporting
+
+Opening the final CSV is not sufficient. Review:
+
+1. the run record and every QC message;
+2. the diagnostic figures and residuals;
+3. the reportability verdict;
+4. the input-bundle identity and software version; and
+5. any sensitivity analysis relevant to the result.
+
+A numerical BET fit or surface-area value must not be reported when the
+pipeline marks it non-reportable. Ask the study lead when a warning or model
+choice is unclear.
+
+## 6. Preserve the analysis record
+
+Keep the validated neutral bundle, complete output directory, run record, and
+study-specific interpretation together in the study's governed data location.
+Record the exact software release and version DOI in the analysis note or
+manuscript. Do not commit experimental inputs or outputs to this repository.
+
+For a manuscript, cite the version DOI listed in the [citation section of the
+README](../README.md#citation). For a website or general reference to the
+evolving project, use the concept DOI.

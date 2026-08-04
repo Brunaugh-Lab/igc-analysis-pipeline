@@ -41,6 +41,11 @@ On Windows PowerShell, activate the environment with:
 No acquisition-system runtime or source-specific library is required by this
 repository.
 
+Lab members should begin with the [student quick start](docs/student_quick_start.md),
+which connects private extraction, neutral-bundle validation, analysis, QC
+review, record retention, and citation without assuming a particular computer
+or local folder layout.
+
 ## BET surface-area analysis
 
 Run the corrected BET workflow on one validated neutral bundle:
