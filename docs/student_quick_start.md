@@ -78,9 +78,18 @@ igc-dispersive \
   --output /path/to/results/dispersive
 ```
 
+If the command reports more than three carbon-numbered analytes or duplicate
+carbon numbers, inspect `probe_properties.csv` and repeat
+`--homologous-probe-id OPAQUE_ID` for each member of the intended homologous
+series. Do not substitute names or guess the series; ask the study lead if the
+IDs are not documented.
+
 Review the actual-versus-target coverage table and every extrapolation flag.
 Any extrapolation makes the profile non-reportable. Center-of-mass retention is
 primary; peak maximum is a sensitivity result.
+Treat a detector-gain warning as a calibration review requirement rather than
+an instruction to rescale the output manually. The pipeline marks that profile
+non-reportable until the review is resolved.
 
 ## 5. Review before reporting
 

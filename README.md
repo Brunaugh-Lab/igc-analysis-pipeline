@@ -94,6 +94,11 @@ igc-dispersive \
   --output output/dispersive
 ```
 
+When a bundle contains more than three carbon-numbered analytes, the command
+fails closed until the homologous series is selected explicitly by repeating
+`--homologous-probe-id` for its opaque probe IDs. Use at least three IDs with
+unique carbon numbers.
+
 The workflow derives actual coverage from calibrated amount, supplied SSA,
 sample mass, and declared probe cross-sections. It uses measured per-injection
 conditions, James--Martin pressure correction, matched dead-time definitions,
@@ -101,6 +106,9 @@ center-of-mass retention as the primary result, and peak maximum as a
 sensitivity calculation. Probe-property, calibration, and SSA provenance are
 required rather than silently supplied. Extrapolated coverage points remain
 available for historical comparison but make the profile non-reportable.
+Detector gain is required for the dispersive consumer. Gain changes are
+retained in the audit record, warned, and make the profile non-reportable until
+the declared area-to-amount calibrations have been reviewed across those gains.
 
 Run the complete synthetic recovery example:
 

@@ -53,6 +53,11 @@ def test_closed_form_bundle_recovers_known_dispersive_profile(
 ):
     result = run_dispersive_from_neutral(synthetic_dispersive_bundle)
 
+    assert set(result.injections["probe_id"]) == {
+        "probe-homolog-08",
+        "probe-homolog-09",
+        "probe-homolog-10",
+    }
     assert result.reportable is True
     assert result.qc["pass"] is True
     assert result.qc["profile_shape"] == "flat"
@@ -93,6 +98,7 @@ def test_declared_provenance_is_preserved(
     assert result.calibration_sources == ("synthetic-calibration-v1",)
     assert result.flow_source_channels == ("flow-channel-synthetic",)
     assert result.pressure_basis == ("declared_absolute_inlet_outlet",)
+    assert result.pressure_roles == ("measured",)
 
 
 @pytest.mark.parametrize(
@@ -160,7 +166,7 @@ def test_co_injected_analytes_are_rejected(
         run_dispersive_from_neutral(copied)
 
 
-def test_varying_detector_gain_is_rejected(
+def test_varying_detector_gain_is_recorded_and_flagged(
     synthetic_dispersive_bundle: Path, tmp_path: Path,
 ):
     copied = _copy_bundle(synthetic_dispersive_bundle, tmp_path)
@@ -169,8 +175,89 @@ def test_varying_detector_gain_is_rejected(
         injections["injection_id"] == "injection-08-001", "detector_gain"
     ] = 2.0
     _write_table_and_refresh_manifest(copied, "injections.csv", injections)
-    with pytest.raises(ValueError, match="constant detector_gain"):
+    result = run_dispersive_from_neutral(copied)
+    assert result.detector_gains == (1.0, 2.0)
+    assert result.reportable is False
+    assert any(
+        flag["check"] == "detector_gain_variation"
+        and flag["severity"] == "warning"
+        for flag in result.qc["flags"]
+    )
+
+
+def test_explicit_homologous_probe_selection(
+    synthetic_dispersive_bundle: Path,
+):
+    selected = [
+        "probe-homolog-08",
+        "probe-homolog-09",
+        "probe-homolog-10",
+    ]
+    result = run_dispersive_from_neutral(
+        synthetic_dispersive_bundle,
+        homologous_probe_ids=selected,
+    )
+    assert set(result.injections["probe_id"]) == set(selected)
+
+    with pytest.raises(ValueError, match="not analytes in this bundle"):
+        run_dispersive_from_neutral(
+            synthetic_dispersive_bundle,
+            homologous_probe_ids=[*selected[:2], "probe-missing"],
+        )
+
+
+def test_mixed_carbon_numbered_bundle_requires_explicit_selection(
+    synthetic_dispersive_bundle: Path, tmp_path: Path,
+):
+    copied = _copy_bundle(synthetic_dispersive_bundle, tmp_path)
+    properties = pd.read_csv(copied / "probe_properties.csv", keep_default_na=False)
+    extra_property = properties[
+        properties["probe_id"] == "probe-homolog-08"
+    ].iloc[0].copy()
+    extra_property["probe_id"] = "probe-extra-carbon-07"
+    extra_property["probe_name"] = "synthetic extra carbon analyte"
+    extra_property["carbon_number"] = "7"
+    properties = pd.concat(
+        [properties, pd.DataFrame([extra_property])], ignore_index=True
+    )
+    _write_table_and_refresh_manifest(copied, "probe_properties.csv", properties)
+    calibration = pd.read_csv(copied / "calibration.csv", keep_default_na=False)
+    extra_calibration = calibration[
+        calibration["probe_id"] == "probe-homolog-08"
+    ].iloc[0].copy()
+    extra_calibration["calibration_id"] = "calibration-probe-extra-carbon-07"
+    extra_calibration["probe_id"] = "probe-extra-carbon-07"
+    calibration = pd.concat(
+        [calibration, pd.DataFrame([extra_calibration])], ignore_index=True
+    )
+    _write_table_and_refresh_manifest(copied, "calibration.csv", calibration)
+    components = pd.read_csv(
+        copied / "injection_components.csv", keep_default_na=False
+    )
+    components.loc[
+        components["injection_id"] == "injection-08-001",
+        ["probe_id", "calibration_id"],
+    ] = ["probe-extra-carbon-07", "calibration-probe-extra-carbon-07"]
+    _write_table_and_refresh_manifest(
+        copied, "injection_components.csv", components
+    )
+
+    with pytest.raises(ValueError, match="require explicit homologous_probe_ids"):
         run_dispersive_from_neutral(copied)
+
+    result = run_dispersive_from_neutral(
+        copied,
+        homologous_probe_ids=[
+            "probe-homolog-08",
+            "probe-homolog-09",
+            "probe-homolog-10",
+        ],
+    )
+    assert set(result.injections["probe_id"]) == {
+        "probe-homolog-08",
+        "probe-homolog-09",
+        "probe-homolog-10",
+    }
 
 
 def test_missing_cross_section_has_a_located_error(
@@ -216,6 +303,37 @@ def test_target_only_conditions_are_rejected(
     _write_table_and_refresh_manifest(copied, "conditions.csv", conditions)
     with pytest.raises(ValueError, match="requires measured column temperature"):
         run_dispersive_from_neutral(copied)
+
+
+def test_pressure_correction_requires_measured_inlet_or_drop(
+    synthetic_dispersive_bundle: Path, tmp_path: Path,
+):
+    copied = _copy_bundle(synthetic_dispersive_bundle, tmp_path)
+    conditions = pd.read_csv(copied / "conditions.csv", keep_default_na=False)
+    mask = conditions["quantity"].isin(["pressure_inlet", "pressure_drop"])
+    conditions.loc[mask, "value_role"] = "target"
+    conditions.loc[mask, "measurement_basis"] = "declared_target"
+    _write_table_and_refresh_manifest(copied, "conditions.csv", conditions)
+    with pytest.raises(
+        ValueError, match="requires measured pressure_inlet or pressure_drop"
+    ):
+        run_dispersive_from_neutral(copied)
+
+
+def test_measured_drop_takes_precedence_over_target_absolute_pressures(
+    synthetic_dispersive_bundle: Path, tmp_path: Path,
+):
+    copied = _copy_bundle(synthetic_dispersive_bundle, tmp_path)
+    conditions = pd.read_csv(copied / "conditions.csv", keep_default_na=False)
+    mask = conditions["quantity"].isin(["pressure_inlet", "pressure_outlet"])
+    conditions.loc[mask, "value_role"] = "target"
+    conditions.loc[mask, "measurement_basis"] = "declared_target"
+    _write_table_and_refresh_manifest(copied, "conditions.csv", conditions)
+    result = run_dispersive_from_neutral(copied)
+    assert result.pressure_roles == ("measured",)
+    assert result.pressure_basis == (
+        "declared_drop_plus_ambient_absolute_outlet",
+    )
 
 
 def test_dead_time_conditions_participate_in_stability_gate(
@@ -331,15 +449,34 @@ def test_cli_writes_auditable_outputs_without_local_path(
     record = json.loads(record_text)
     assert record["settings"]["package_version"] == __version__
     assert record["settings"]["primary_retention_mode"] == "cofm"
+    assert record["settings"]["homologous_probe_selection"] == "all_carbon_numbered"
     assert record["result"]["reportable"] is True
     assert record["input"]["surface_area_source"] == "synthetic-declared-ssa-v1"
+    assert record["input"]["pressure_roles"] == ["measured"]
     assert str(synthetic_dispersive_bundle) not in record_text
-    assert stat.S_IMODE(output.stat().st_mode) == 0o755
+    assert stat.S_IMODE(output.stat().st_mode) == 0o700
     with pytest.raises(SystemExit, match="output already exists"):
         main([
             "--neutral-bundle", str(synthetic_dispersive_bundle),
             "--output", str(output),
         ])
+
+
+def test_cli_records_explicit_homologous_probe_selection(
+    synthetic_dispersive_bundle: Path, tmp_path: Path,
+):
+    output = tmp_path / "explicit-selection-output"
+    main([
+        "--neutral-bundle", str(synthetic_dispersive_bundle),
+        "--homologous-probe-id", "probe-homolog-08",
+        "--homologous-probe-id", "probe-homolog-09",
+        "--homologous-probe-id", "probe-homolog-10",
+        "--output", str(output),
+    ])
+    record = json.loads(
+        (output / "dispersive_run.json").read_text(encoding="utf-8")
+    )
+    assert record["settings"]["homologous_probe_selection"] == "explicit"
 
 
 def test_cli_error_does_not_create_output(

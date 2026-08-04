@@ -127,16 +127,23 @@ dated gate below covers the BET command added in release candidate `v2026.8.4`.
   orchestrator; the production call explicitly enabled extrapolation. The
   public candidate retains that numerical comparison but makes any extrapolated
   profile non-reportable. All subsequent P1/P2 findings were remediated.
-- [x] Exercise malformed provenance, target-only conditions, dead-time flow
-  drift, clipping, co-injected analytes, changing detector gain, sparse and
+- [x] Exercise malformed provenance, target-only conditions, measured-pressure
+  enforcement, explicit homolog selection, dead-time flow drift, clipping,
+  co-injected analytes, changing detector gain, sparse and
   out-of-range coverage, missing cross-section, nonuniform sampling, empty-fit
   plotting, generator reproducibility, and partial-output prevention.
-- [x] Re-run local verification after remediation: 308 tests passed; Ruff,
+- [x] Re-run local verification after remediation: 313 tests passed; Ruff,
   lock, diff, neutral-validator, and working-tree disclosure-boundary checks
   passed; source and wheel distributions built; and the isolated wheel
   completed the packaged example with clean QC and positive reportability.
-- [ ] Complete an authorized governed legacy-versus-neutral equivalence run.
-  Keep the neutral bundle and comparison outputs outside Git.
+- [x] Complete an authorized governed legacy-versus-neutral equivalence run,
+  with the neutral bundle and comparison outputs kept outside Git. All 24
+  homologous injections matched for actual coverage; peak-maximum retention
+  volume agreed to floating-point precision; center-of-mass retention volume
+  differed by at most 0.00072 mL/g (0.0037% relative) after time-weighting
+  correction; and the nine-point primary surface-energy profile differed by at
+  most 0.001 mJ/m2 (0.0028% relative). This was one authorized acquisition,
+  not a claim of universal equivalence.
 - [ ] Commit and push the candidate, obtain passing GitHub CI, tag a new
   immutable release, archive it in Zenodo, and update the student guide from
   "next tagged release" to the exact version and DOI.

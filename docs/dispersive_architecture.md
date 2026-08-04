@@ -1,8 +1,9 @@
 # Source-neutral dispersive surface-energy architecture
 
-Status: implemented development candidate. Entry point: `igc-dispersive`.
-Synthetic closed-form recovery is complete; independent audit and governed
-equivalence remain release gates.
+Status: governed-equivalence candidate. Entry point: `igc-dispersive`.
+Synthetic closed-form recovery, independent audit, and an authorized governed
+legacy-versus-neutral comparison are complete. Release packaging remains a
+separate gate.
 
 ## Boundary
 
@@ -14,16 +15,26 @@ lab's private workflow.
 ## Required declarations
 
 - exactly one experiment and one acquisition block;
-- at least three analyte probes with unique carbon numbers;
+- at least three selected analyte probes with unique carbon numbers; when a
+  bundle also contains other carbon-numbered analytes, supply the homologous
+  series as repeatable opaque `--homologous-probe-id` values;
 - at least three calibrated coverage points for each probe;
 - complete detector traces and at least one dead-time trace;
 - sample mass, supplied specific surface area, and SSA provenance;
 - probe molecular cross-section, carbon number, and property provenance;
 - a compatible area-to-moles calibration and provenance for every probe;
+- a positive declared detector gain for every required injection;
 - a positive nominal coverage for every probe injection;
 - stable, measured column temperature and flow; and
 - absolute pressures, or pressure drop plus declared ambient absolute pressure,
   when pressure correction is enabled.
+
+The inlet pressure or pressure drop must be measured. Outlet pressure may be
+measured or use the configured ambient pressure. Pressure roles and the
+resolved basis are retained in the run record. Detector-gain variation is
+retained and flagged for review because each area-to-amount calibration must be
+valid for the gain used by its injection; the profile remains non-reportable
+until that review is resolved.
 
 The supplied SSA is an experimental input used to convert calibrated amount to
 actual fractional coverage. The workflow does not silently substitute an
@@ -95,10 +106,20 @@ The packaged fixture begins with complete synthetic detector traces and a known
 recovery, matched dead-time subtraction, measured conditions, pressure
 correction, interpolation/extrapolation, both retention definitions, QC, CLI
 outputs, and strict provenance records. It does not replace equivalence testing
-on an authorized governed dataset before release.
+on an authorized governed dataset before release. The governed comparison
+used one authorized acquisition and matched all 24 homologous injections:
+actual coverage and peak-maximum retention volume agreed to floating-point
+precision; center-of-mass retention volume differed by at most 0.00072 mL/g
+(0.0037% relative) after the corrected time-weighted center-of-mass
+calculation; and the nine-point primary surface-energy profile differed by at
+most 0.001 mJ/m2 (0.0028% relative). The comparison inputs and outputs remain
+outside Git, and this internal regression evidence is not a claim of universal
+equivalence.
 
 The fixture uses nonzero pressure drop and asymmetric probe peaks, so the
 James--Martin arithmetic is nondegenerate and the center-of-mass and
 peak-maximum results differ. Separate adversarial tests verify fail-closed
 extrapolation, target-only conditions, dead-time condition drift, clipping,
 missing provenance, incomplete homologous coverage, and empty-fit plotting.
+Explicit homolog selection, measured-pressure enforcement, and detector-gain
+variation are also covered.

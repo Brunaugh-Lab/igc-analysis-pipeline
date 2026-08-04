@@ -179,6 +179,14 @@ def main(argv=None):
         help="new output directory; the command refuses an existing path",
     )
     parser.add_argument("--ambient-pressure-pa", type=float, default=101325.0)
+    parser.add_argument(
+        "--homologous-probe-id",
+        action="append",
+        help=(
+            "opaque probe ID in the homologous series; repeat at least three "
+            "times when the bundle also contains other analytes"
+        ),
+    )
     parser.add_argument("--no-pressure-correction", action="store_true")
     parser.add_argument(
         "--no-extrapolation",
@@ -194,6 +202,7 @@ def main(argv=None):
         neutral = read_neutral_bundle(bundle_path)
         result = run_dispersive_from_neutral(
             neutral,
+            homologous_probe_ids=args.homologous_probe_id,
             pressure_correction=not args.no_pressure_correction,
             ambient_pressure_pa=args.ambient_pressure_pa,
             extrapolate=not args.no_extrapolation,
@@ -212,6 +221,9 @@ def main(argv=None):
             "command_name": "igc-dispersive",
             "primary_retention_mode": "cofm",
             "sensitivity_retention_mode": "peak_max",
+            "homologous_probe_selection": (
+                "explicit" if args.homologous_probe_id else "all_carbon_numbered"
+            ),
             "pressure_correction": not args.no_pressure_correction,
             "ambient_pressure_pa": args.ambient_pressure_pa,
             "extrapolate": not args.no_extrapolation,
@@ -222,7 +234,8 @@ def main(argv=None):
             "reportability_rule": (
                 "zero critical QC flags; at least three homologs with finite "
                 "positive Dorris-Gray slope at every target coverage; no "
-                "interpolated value outside its probe's measured coverage range"
+                "interpolated value outside its probe's measured coverage range; "
+                "one detector gain across required injections"
             ),
         },
         "input": {
@@ -235,6 +248,7 @@ def main(argv=None):
             "surface_area_source": result.surface_area_source,
             "flow_source_channels": result.flow_source_channels,
             "pressure_basis": result.pressure_basis,
+            "pressure_roles": result.pressure_roles,
             "properties_sources": result.properties_sources,
             "calibration_sources": result.calibration_sources,
             "detector_gains": result.detector_gains,
@@ -285,7 +299,6 @@ def main(argv=None):
         )
         _write_readme(result, record, staged)
         staged.replace(output)
-        output.chmod(0o755)
     print(f"Dispersive outputs written to {output}")
     print(f"Reportable profile: {'yes' if result.reportable else 'no'}")
     print(result.qc["summary"])

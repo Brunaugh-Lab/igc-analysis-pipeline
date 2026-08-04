@@ -218,7 +218,7 @@ def find_peak_cofm(
 
     .. math::
 
-        t_{CoM} = \\frac{\\sum_i s_i \\cdot t_i}{\\sum_i s_i}
+        t_{CoM} = \\frac{\\int s(t)t\\,dt}{\\int s(t)\\,dt}
 
     Only positive signal values contribute (noise below baseline excluded).
 

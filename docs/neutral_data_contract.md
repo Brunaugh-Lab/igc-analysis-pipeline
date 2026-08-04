@@ -43,7 +43,17 @@ homologous analytes with unique carbon numbers and at least three calibrated
 coverage points each; complete probe and dead-time traces; sample mass;
 supplied SSA and its source; probe cross-sections and property sources;
 calibration sources; positive nominal coverages; and stable measured
-temperature and flow. Pressure requirements match the corrected BET consumer.
+temperature and flow. The dispersive pressure provenance gate is stricter than
+the general contract and the current BET consumer.
+
+If more than three analytes declare carbon numbers, the caller must explicitly
+select the homologous series with repeatable opaque `--homologous-probe-id`
+values. Pressure correction requires measured inlet pressure or measured
+pressure drop; outlet pressure may be measured or use the configured ambient
+pressure, and the resolved roles are recorded. The dispersive consumer requires
+declared detector gain for all required injections. Multiple gains are
+preserved and warned, not silently normalized, and make the profile
+non-reportable until the declared calibrations are reviewed across them.
 
 The consumer calculates actual coverage from calibrated amount and the supplied
 SSA. It never substitutes a source-specific default. It records all

@@ -22,6 +22,7 @@ from igc_analysis.analysis.calibration import monolayer_capacity
 from igc_analysis.analysis.dispersive import dorris_gray_gamma_d
 from igc_analysis.analysis.full_peak import (
     _neutral_calibrated_amount,
+    _neutral_condition_mean,
     _neutral_trace,
 )
 from igc_analysis.analysis.peak_detection import process_chromatogram
@@ -51,6 +52,7 @@ class DispersiveResult:
     reportable: bool
     flow_source_channels: tuple[str, ...]
     pressure_basis: tuple[str, ...]
+    pressure_roles: tuple[str, ...]
     properties_sources: tuple[str, ...]
     calibration_sources: tuple[str, ...]
     detector_gains: tuple[float, ...]
@@ -178,6 +180,7 @@ def _finish_qc(qc: dict) -> None:
 def run_dispersive_from_neutral(
     bundle_dir: str | Path | NeutralBundle,
     *,
+    homologous_probe_ids: tuple[str, ...] | list[str] | None = None,
     pressure_correction: bool = True,
     ambient_pressure_pa: float = 101325.0,
     extrapolate: bool = True,
@@ -225,7 +228,38 @@ def run_dispersive_from_neutral(
     analytes["carbon_number"] = pd.to_numeric(
         analytes["carbon_number"], errors="coerce"
     )
-    homologous = analytes[analytes["carbon_number"].notna()].copy()
+    carbon_declared = analytes[analytes["carbon_number"].notna()].copy()
+    if homologous_probe_ids is not None:
+        selected_ids = tuple(str(value).strip() for value in homologous_probe_ids)
+        if any(not value for value in selected_ids):
+            raise ValueError("homologous probe IDs cannot be empty")
+        if len(set(selected_ids)) != len(selected_ids):
+            raise ValueError("homologous probe IDs must be unique")
+        available_ids = set(analytes["probe_id"].astype(str))
+        missing_ids = sorted(set(selected_ids) - available_ids)
+        if missing_ids:
+            raise ValueError(
+                "selected homologous probe IDs are not analytes in this bundle: "
+                + ", ".join(missing_ids)
+            )
+        homologous = carbon_declared[
+            carbon_declared["probe_id"].astype(str).isin(selected_ids)
+        ].copy()
+        selected_without_carbon = sorted(
+            set(selected_ids) - set(homologous["probe_id"].astype(str))
+        )
+        if selected_without_carbon:
+            raise ValueError(
+                "selected homologous probes require declared carbon_number: "
+                + ", ".join(selected_without_carbon)
+            )
+    else:
+        if carbon_declared["probe_id"].nunique() > 3:
+            raise ValueError(
+                "bundles with more than three carbon-numbered analytes require "
+                "explicit homologous_probe_ids/--homologous-probe-id selection"
+            )
+        homologous = carbon_declared
     if homologous.empty:
         raise ValueError("dispersive analysis requires a homologous analyte series")
 
@@ -236,7 +270,11 @@ def run_dispersive_from_neutral(
     if probe_defs["probe_id"].nunique() < 3:
         raise ValueError("dispersive analysis requires at least three homologous probes")
     if probe_defs["carbon_number"].nunique() != len(probe_defs):
-        raise ValueError("each homologous probe must have a unique carbon number")
+        raise ValueError(
+            "each homologous probe must have a unique carbon number; use "
+            "homologous_probe_ids/--homologous-probe-id when the bundle also "
+            "contains other carbon-numbered analytes"
+        )
     for row in probe_defs.itertuples(index=False):
         if not str(row.properties_source).strip():
             raise ValueError(f"probe {row.probe_id!r} is missing properties_source")
@@ -262,13 +300,6 @@ def run_dispersive_from_neutral(
         _required_float(row, "detector_gain", str(row["injection_id"]))
         for _, row in required_rows.iterrows()
     ])
-    if not np.allclose(
-        detector_gains, detector_gains[0], rtol=1e-9, atol=1e-12
-    ):
-        raise ValueError(
-            "dispersive analysis requires one constant detector_gain across "
-            "probe and dead-time injections"
-        )
     homologous_probe_components = homologous[
         homologous["injection_id"].isin(probe_rows["injection_id"])
     ]
@@ -290,6 +321,7 @@ def run_dispersive_from_neutral(
     all_flows: list[float] = []
     flow_channels: set[str] = set()
     pressure_bases: set[str] = set()
+    pressure_roles: set[str] = set()
     property_sources: set[str] = set()
     calibration_sources: set[str] = set()
     for row in dead_rows.itertuples(index=False):
@@ -381,17 +413,39 @@ def run_dispersive_from_neutral(
                 f"{injection_id}: dispersive analysis requires measured "
                 "column temperature and flow"
             )
+        pressure_rows = conditions[
+            ~(
+                conditions["quantity"].isin(
+                    ["pressure_inlet", "pressure_outlet", "pressure_drop"]
+                )
+                & (conditions["value_role"] != "measured")
+            )
+        ]
+        if pressure_correction:
+            measured_inlet = _neutral_condition_mean(
+                conditions,
+                injection_id,
+                "pressure_inlet",
+                value_role="measured",
+            )
+            measured_drop = _neutral_condition_mean(
+                conditions,
+                injection_id,
+                "pressure_drop",
+                value_role="measured",
+            )
+            if measured_inlet is None and measured_drop is None:
+                raise ValueError(
+                    f"{injection_id}: pressure correction requires measured "
+                    "pressure_inlet or pressure_drop; outlet may be measured "
+                    "or use the configured ambient pressure"
+                )
         pressure = _pressure_factor(
-            conditions,
+            pressure_rows,
             injection_id,
             enabled=pressure_correction,
             ambient_pressure_pa=ambient_pressure_pa,
         )
-        if pressure_correction and set(pressure.roles) != {"measured"}:
-            raise ValueError(
-                f"{injection_id}: pressure correction requires measured "
-                "pressure declarations"
-            )
         net_max = float(peak["peak_max_time"]) - t0_max
         net_cofm = float(peak["peak_cofm"]) - t0_cofm
         if net_max <= 0 or net_cofm <= 0:
@@ -408,6 +462,7 @@ def run_dispersive_from_neutral(
         all_flows.append(flow_column_mL_min)
         flow_channels.add(flow_channel)
         pressure_bases.add(pressure.basis)
+        pressure_roles.update(pressure.roles)
         property_sources.add(str(component["properties_source"]).strip())
         calibration_sources.add(calibration_source)
         records.append({
@@ -531,6 +586,20 @@ def run_dispersive_from_neutral(
             ),
             "value": int(len(outside_range)),
         })
+    distinct_gains = sorted(set(detector_gains.tolist()))
+    gain_variation = len(distinct_gains) > 1
+    if gain_variation:
+        _append_flag(qc, {
+            "check": "detector_gain_variation",
+            "severity": "warning",
+            "coverage": None,
+            "message": (
+                "required injections use multiple detector gains; confirm the "
+                "declared area-to-amount calibrations are valid across them; "
+                "the profile is non-reportable until that review is resolved"
+            ),
+            "value": distinct_gains,
+        })
     if dead_clipped or clipped_probe_ids:
         _append_flag(qc, {
             "check": "detector_clipping",
@@ -551,7 +620,10 @@ def run_dispersive_from_neutral(
         (interpolated["interpolation_status"] == "interpolated").all()
     )
     reportable = bool(
-        qc["pass"] and complete_three_probe_fits and no_extrapolation
+        qc["pass"]
+        and complete_three_probe_fits
+        and no_extrapolation
+        and not gain_variation
     )
 
     return DispersiveResult(
@@ -569,6 +641,7 @@ def run_dispersive_from_neutral(
         reportable=reportable,
         flow_source_channels=tuple(sorted(flow_channels)),
         pressure_basis=tuple(sorted(pressure_bases)),
+        pressure_roles=tuple(sorted(pressure_roles)),
         properties_sources=tuple(sorted(property_sources)),
         calibration_sources=tuple(sorted(calibration_sources)),
         detector_gains=tuple(sorted(set(detector_gains.tolist()))),
