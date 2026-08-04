@@ -1,0 +1,5 @@
+probe_id,probe_name,molar_mass_g_mol,cross_section_m2,gamma_l_d_mJ_m2,donor_number_kJ_mol,acceptor_number_kJ_mol,carbon_number,properties_source
+probe-dead-time-synthetic,synthetic dead-time marker,16.0,2e-19,,,,,synthetic-reference-properties-v1
+probe-homolog-08,synthetic homolog C8,114.0,5.1e-19,,,,8,synthetic-reference-properties-v1
+probe-homolog-09,synthetic homolog C9,128.0,5.7e-19,,,,9,synthetic-reference-properties-v1
+probe-homolog-10,synthetic homolog C10,142.0,6.3e-19,,,,10,synthetic-reference-properties-v1

@@ -234,14 +234,18 @@ def find_peak_cofm(
     float
         Center-of-mass retention time (minutes).
     """
-    # Only use positive signal (above baseline)
+    # Only use positive signal (above baseline). Integrate with the time axis so
+    # nonuniform but contract-valid sampling does not bias the first moment.
     mask = corrected_signal > 0
     if not mask.any():
         return find_peak_max(time, corrected_signal)
 
-    s_pos = corrected_signal[mask]
-    t_pos = time[mask]
-    return float(np.sum(s_pos * t_pos) / np.sum(s_pos))
+    signal_positive = np.maximum(corrected_signal, 0.0)
+    denominator = float(_trapezoid(signal_positive, time))
+    if denominator <= 0:
+        return find_peak_max(time, corrected_signal)
+    numerator = float(_trapezoid(signal_positive * time, time))
+    return numerator / denominator
 
 
 def integrate_peak(

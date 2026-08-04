@@ -1,0 +1,15 @@
+experiment_id,injection_id,block_id,sequence_index,acquired_at,role,target_coverage_fraction,detector_gain,detector_channel,clipping_observed
+experiment-dispersive-001,dead-time-000,block-dispersive-001,0,2026-01-21T09:00:00-05:00,dead_time,,1.0,detector-primary,false
+experiment-dispersive-001,injection-08-001,block-dispersive-001,1,2026-01-21T09:04:00-05:00,probe,0.01,1.0,detector-primary,false
+experiment-dispersive-001,injection-08-002,block-dispersive-001,2,2026-01-21T09:08:00-05:00,probe,0.02,1.0,detector-primary,false
+experiment-dispersive-001,injection-08-003,block-dispersive-001,3,2026-01-21T09:12:00-05:00,probe,0.03,1.0,detector-primary,false
+experiment-dispersive-001,injection-08-004,block-dispersive-001,4,2026-01-21T09:16:00-05:00,probe,0.04,1.0,detector-primary,false
+experiment-dispersive-001,injection-09-005,block-dispersive-001,5,2026-01-21T09:20:00-05:00,probe,0.01,1.0,detector-primary,false
+experiment-dispersive-001,injection-09-006,block-dispersive-001,6,2026-01-21T09:24:00-05:00,probe,0.02,1.0,detector-primary,false
+experiment-dispersive-001,injection-09-007,block-dispersive-001,7,2026-01-21T09:28:00-05:00,probe,0.03,1.0,detector-primary,false
+experiment-dispersive-001,injection-09-008,block-dispersive-001,8,2026-01-21T09:32:00-05:00,probe,0.04,1.0,detector-primary,false
+experiment-dispersive-001,injection-10-009,block-dispersive-001,9,2026-01-21T09:36:00-05:00,probe,0.01,1.0,detector-primary,false
+experiment-dispersive-001,injection-10-010,block-dispersive-001,10,2026-01-21T09:40:00-05:00,probe,0.02,1.0,detector-primary,false
+experiment-dispersive-001,injection-10-011,block-dispersive-001,11,2026-01-21T09:44:00-05:00,probe,0.03,1.0,detector-primary,false
+experiment-dispersive-001,injection-10-012,block-dispersive-001,12,2026-01-21T09:48:00-05:00,probe,0.04,1.0,detector-primary,false
+experiment-dispersive-001,dead-time-999,block-dispersive-001,13,2026-01-21T09:52:00-05:00,dead_time,,1.0,detector-primary,false

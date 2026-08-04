@@ -108,6 +108,39 @@ dated gate below covers the BET command added in release candidate `v2026.8.4`.
 6. Record the reviewed commit and evidence in the repository architecture note.
 7. Change visibility only as a separate, explicit owner-approved action.
 
+## Dispersive candidate gate — 2026-08-04
+
+- [x] Reconstruct the production dispersive call path from final corrected
+  historical commit `52d1cf9`, including calibrated actual coverage, explicit
+  SSA, matched CoM/peak-max dead times, measured conditions, James--Martin
+  correction, production `extrapolate=True`, Dorris--Gray fitting, and
+  $W_{cohesion}^d=2\gamma_s^d$.
+- [x] Implement `igc-dispersive` as a neutral `0.2.0` consumer with explicit
+  property/calibration/SSA provenance, transactional outputs, strict JSON,
+  PDF/PNG diagnostics, and no local input paths.
+- [x] Add a reproducible closed-form fixture with nonzero pressure correction
+  and asymmetric peaks. The final isolated wheel recovered 39.89--40.04 mJ/m²
+  from a true 40.0 mJ/m² CoM profile; peak maximum differed by approximately
+  2 mJ/m² as an actual sensitivity calculation.
+- [x] Complete two independent read-only Claude Code audits. The first audit's
+  apparent extrapolation blocker was resolved by reading the removed production
+  orchestrator; the production call explicitly enabled extrapolation. The
+  public candidate retains that numerical comparison but makes any extrapolated
+  profile non-reportable. All subsequent P1/P2 findings were remediated.
+- [x] Exercise malformed provenance, target-only conditions, dead-time flow
+  drift, clipping, co-injected analytes, changing detector gain, sparse and
+  out-of-range coverage, missing cross-section, nonuniform sampling, empty-fit
+  plotting, generator reproducibility, and partial-output prevention.
+- [x] Re-run local verification after remediation: 308 tests passed; Ruff,
+  lock, diff, neutral-validator, and working-tree disclosure-boundary checks
+  passed; source and wheel distributions built; and the isolated wheel
+  completed the packaged example with clean QC and positive reportability.
+- [ ] Complete an authorized governed legacy-versus-neutral equivalence run.
+  Keep the neutral bundle and comparison outputs outside Git.
+- [ ] Commit and push the candidate, obtain passing GitHub CI, tag a new
+  immutable release, archive it in Zenodo, and update the student guide from
+  "next tagged release" to the exact version and DOI.
+
 ## Post-release verification
 
 - [x] Clone without authentication into a new temporary directory.

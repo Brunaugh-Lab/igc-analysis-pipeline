@@ -99,6 +99,7 @@ jobs:
       - name: Smoke-test wheel commands
         run: |
           uv run --isolated --no-project --with dist/*.whl igc-bet --help
+          uv run --isolated --no-project --with dist/*.whl igc-dispersive --help
           uv run --isolated --no-project --with dist/*.whl igc-full-peak --help
           uv run --isolated --no-project --with dist/*.whl igc-ssa-dose --help
           uv run --isolated --no-project --with dist/*.whl python -c \
@@ -123,14 +124,26 @@ jobs:
           test -s wheel-bet-smoke-output/README.md
           python -c "import json; d=json.load(open('wheel-bet-smoke-output/bet_run.json')); assert d['reportability']['bet_applicable'] is True; assert abs(d['result']['ssa_m2_g'] - 3.793949) < 0.04"
 
+          uv run --isolated --no-project --with dist/*.whl igc-dispersive \
+            --synthetic-example \
+            --output wheel-dispersive-smoke-output
+          test -s wheel-dispersive-smoke-output/dispersive_run.json
+          test -s wheel-dispersive-smoke-output/README.md
+          python -c "import json; d=json.load(open('wheel-dispersive-smoke-output/dispersive_run.json')); assert d['result']['reportable'] is True; assert abs(d['result']['gamma_d_min_mJm2'] - 40.0) < 0.2"
+
       - name: Smoke-test source distribution
         run: |
           uv run --isolated --no-project --with dist/*.tar.gz igc-bet --help
+          uv run --isolated --no-project --with dist/*.tar.gz igc-dispersive --help
           uv run --isolated --no-project --with dist/*.tar.gz igc-full-peak --help
           uv run --isolated --no-project --with dist/*.tar.gz igc-bet \
             --synthetic-example \
             --output sdist-bet-smoke-output
           python -c "import json; d=json.load(open('sdist-bet-smoke-output/bet_run.json')); assert d['reportability']['bet_applicable'] is True; assert abs(d['result']['ssa_m2_g'] - 3.793949) < 0.04"
+          uv run --isolated --no-project --with dist/*.tar.gz igc-dispersive \
+            --synthetic-example \
+            --output sdist-dispersive-smoke-output
+          python -c "import json; d=json.load(open('sdist-dispersive-smoke-output/dispersive_run.json')); assert d['result']['reportable'] is True; assert abs(d['result']['gamma_d_min_mJm2'] - 40.0) < 0.2"
 
   dependency-audit:
     name: Dependency audit

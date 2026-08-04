@@ -1,0 +1,43 @@
+{
+  "contract_name": "igc-neutral-data",
+  "contract_version": "0.2.0",
+  "profile": "trace-core",
+  "dataset_id": "synthetic-dispersive-profile-001",
+  "created_at": "2026-01-21T12:00:00-05:00",
+  "adapter_version": "synthetic-dispersive-generator-1.0.0",
+  "source_fingerprint": "1043b4175209f063bff1f3019d5a836025b498d21531785d012b52e27aab56a3",
+  "files": {
+    "experiment.csv": {
+      "row_count": 1,
+      "sha256": "27ffe9fa16d7646dc2400e8f4d67e2c6bdb266275aba0fab4182e41e4e5a573a"
+    },
+    "columns.csv": {
+      "row_count": 1,
+      "sha256": "37e1d41c8e5ee5bcb5d6a5895be0456b4f5f203050f6d8a055b2117a0a0d7654"
+    },
+    "conditions.csv": {
+      "row_count": 70,
+      "sha256": "616cf5b0879950f21c53f48beeb1be7fd9e1a536599b99b9644fa1b3ea5f4a74"
+    },
+    "injections.csv": {
+      "row_count": 14,
+      "sha256": "20763cb4a642f0ac4a09ddda2b99efdb25219786f2b5ebb7c9541490d7854efb"
+    },
+    "injection_components.csv": {
+      "row_count": 14,
+      "sha256": "777730572e43f36c5d1c1089003c711aaa5b985be6e83057c6f2f4311a8a5274"
+    },
+    "traces.csv": {
+      "row_count": 21014,
+      "sha256": "ecb8747d63bc6ce33d01a796be91b3de9f8e7ba451735709ad318523e9ded427"
+    },
+    "probe_properties.csv": {
+      "row_count": 4,
+      "sha256": "f6423b8482ed3cf7c1ee1a69bd090af84c75487a68a2d6076c175c8880302737"
+    },
+    "calibration.csv": {
+      "row_count": 3,
+      "sha256": "f0243943bc0387090010a5da7f8793c79b38026fea0499f3e4773f046313da9e"
+    }
+  }
+}

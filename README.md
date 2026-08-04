@@ -11,14 +11,14 @@ for the geometric surface-area dosing utility.
 ## Current release boundary
 
 The implemented end-to-end chromatography workflows are corrected BET surface
-area and full-peak nonlinear analysis through `igc-neutral-data/0.2.0`. The
-repository also provides a geometric surface-area dosing utility.
+area, Dorris--Gray dispersive surface energy, and full-peak nonlinear analysis
+through `igc-neutral-data/0.2.0`. The repository also provides a geometric
+surface-area dosing utility.
 
-Calculation modules for dispersive surface energy, acid-base analysis,
-retention, peak detection, and quality control remain available for development
-and unit testing. Their former source-coupled command-line workflows have been
-removed. They will be exposed again only after neutral-contract consumers and
-source-attributed property requirements are complete.
+Calculation modules for acid-base analysis, retention, peak detection, and
+quality control remain available for development and unit testing. Any former
+source-coupled command-line workflows remain removed; public workflows consume
+only the neutral contract and source-attributed scientific properties.
 
 ## Installation
 
@@ -82,6 +82,38 @@ recovery, not equivalence on governed experimental data.
 
 See `docs/bet_architecture.md` for equations, readiness requirements, and the
 verification boundary.
+
+## Dispersive surface-energy analysis
+
+Run the coverage-resolved Dorris--Gray workflow on one validated neutral
+bundle containing a calibrated homologous probe series:
+
+```bash
+igc-dispersive \
+  --neutral-bundle /path/to/neutral_bundle \
+  --output output/dispersive
+```
+
+The workflow derives actual coverage from calibrated amount, supplied SSA,
+sample mass, and declared probe cross-sections. It uses measured per-injection
+conditions, James--Martin pressure correction, matched dead-time definitions,
+center-of-mass retention as the primary result, and peak maximum as a
+sensitivity calculation. Probe-property, calibration, and SSA provenance are
+required rather than silently supplied. Extrapolated coverage points remain
+available for historical comparison but make the profile non-reportable.
+
+Run the complete synthetic recovery example:
+
+```bash
+igc-dispersive \
+  --synthetic-example \
+  --output output/synthetic-dispersive
+```
+
+The fixture recovers a known 40.0 mJ/m² profile from synthetic detector traces.
+It verifies numerical recovery, not equivalence on governed experimental data.
+See `docs/dispersive_architecture.md` for equations, reportability, and the
+interpretation boundary.
 
 ## Full-peak analysis
 
@@ -148,7 +180,10 @@ It includes:
 - `FIELD_DICTIONARY.md` — field meaning, units, and scientific boundaries;
 - `validate_bundle.py` — dependency-free validator;
 - `MIGRATION.md` — compatibility rules;
-- `examples/synthetic_peak_shape/` — fully synthetic example bundle.
+- `examples/synthetic_peak_shape/` — fully synthetic full-peak example;
+- `examples/synthetic_bet_isotherm/` — closed-form BET recovery example;
+- `examples/synthetic_dispersive_profile/` — closed-form dispersive recovery
+  example.
 
 Validate a bundle directly with:
 
@@ -205,8 +240,9 @@ boundary check that rejects tracked files under the reserved local-data paths;
 
 GitHub Actions verifies the locked environment, runs the test suite on Python
 3.10 through 3.14, enforces release-blocking lint checks, builds and installs
-both distribution formats, runs the BET and full-peak wheels on synthetic data,
-and audits the locked runtime dependencies for known vulnerabilities.
+both distribution formats, runs the BET, dispersive, and full-peak wheels on
+synthetic data, and audits the locked runtime dependencies for known
+vulnerabilities.
 
 ## Repository structure
 

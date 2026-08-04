@@ -7,8 +7,9 @@ lab's private extraction repository.
 
 ## 1. Use a fixed software release
 
-Do not change software versions partway through a study. For the corrected BET
-workflow, use release `v2026.8.4` or a later release selected for the study.
+Do not change software versions partway through a study. Use the exact release
+selected for the study. Release `v2026.8.4` supports corrected BET; use the next
+tagged release that explicitly includes `igc-dispersive` for dispersive work.
 
 Install Python 3.10 or newer, create an isolated environment, and install the
 pinned release:
@@ -37,6 +38,14 @@ The command should finish successfully and produce a reportable synthetic BET
 fit. This confirms that the software runs; it does not validate an experimental
 dataset.
 
+For a release that includes dispersive analysis, also run:
+
+```bash
+igc-dispersive --synthetic-example --output output/synthetic-dispersive
+```
+
+The resulting profile should be reportable and close to 40.0 mJ/m².
+
 ## 3. Create and validate the neutral bundle
 
 Use the private lab extraction workflow to convert the acquisition data into an
@@ -61,6 +70,18 @@ For full-peak nonlinear analysis, follow the command and model guidance in the
 [main README](../README.md#full-peak-analysis). Use one opaque label for each
 independently characterized acquisition block.
 
+For dispersive surface energy:
+
+```bash
+igc-dispersive \
+  --neutral-bundle /path/to/neutral_bundle \
+  --output /path/to/results/dispersive
+```
+
+Review the actual-versus-target coverage table and every extrapolation flag.
+Any extrapolation makes the profile non-reportable. Center-of-mass retention is
+primary; peak maximum is a sensitivity result.
+
 ## 5. Review before reporting
 
 Opening the final CSV is not sufficient. Review:
@@ -71,9 +92,9 @@ Opening the final CSV is not sufficient. Review:
 4. the input-bundle identity and software version; and
 5. any sensitivity analysis relevant to the result.
 
-A numerical BET fit or surface-area value must not be reported when the
-pipeline marks it non-reportable. Ask the study lead when a warning or model
-choice is unclear.
+A numerical BET fit, surface-area value, or dispersive profile must not be
+reported when the pipeline marks it non-reportable. Ask the study lead when a
+warning, extrapolation, or model choice is unclear.
 
 ## 6. Preserve the analysis record
 

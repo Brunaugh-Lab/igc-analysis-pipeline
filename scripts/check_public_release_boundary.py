@@ -1,7 +1,7 @@
-"""Fail when Git tracks files reserved for local or governed data.
+"""Fail when tracked or unignored files cross the public-data boundary.
 
-This check intentionally operates on Git's index rather than the working tree:
-ignored local data are allowed, while force-added files are rejected.
+Ignored local data are allowed. Tracked, force-added, and new unignored files
+are checked so a candidate can be audited before it is staged.
 """
 
 from __future__ import annotations
@@ -23,7 +23,15 @@ SYNTHETIC_DATA_PREFIX = PurePosixPath(
 SYNTHETIC_BET_DATA_PREFIX = PurePosixPath(
     "src/igc_analysis/contracts/igc-neutral-data/0.2.0/examples/synthetic_bet_isotherm"
 )
-SYNTHETIC_DATA_PREFIXES = (SYNTHETIC_DATA_PREFIX, SYNTHETIC_BET_DATA_PREFIX)
+SYNTHETIC_DISPERSIVE_DATA_PREFIX = PurePosixPath(
+    "src/igc_analysis/contracts/igc-neutral-data/0.2.0/examples/"
+    "synthetic_dispersive_profile"
+)
+SYNTHETIC_DATA_PREFIXES = (
+    SYNTHETIC_DATA_PREFIX,
+    SYNTHETIC_BET_DATA_PREFIX,
+    SYNTHETIC_DISPERSIVE_DATA_PREFIX,
+)
 DATA_EXTENSIONS = {
     "." + "accdb",
     ".csv",
@@ -51,9 +59,9 @@ FORBIDDEN_TEXT_MARKERS = (
 )
 
 
-def tracked_paths() -> list[PurePosixPath]:
+def candidate_paths() -> list[PurePosixPath]:
     result = subprocess.run(
-        ["git", "ls-files", "-z"],
+        ["git", "ls-files", "-z", "--cached", "--others", "--exclude-standard"],
         cwd=REPOSITORY_ROOT,
         check=True,
         capture_output=True,
@@ -81,7 +89,7 @@ def forbidden_text_labels(content: bytes) -> list[str]:
 
 
 def main() -> int:
-    paths = tracked_paths()
+    paths = candidate_paths()
     reserved_violations = sorted(str(path) for path in paths if is_reserved(path))
     data_violations = sorted(str(path) for path in paths if not is_allowed_data_file(path))
     text_violations: list[tuple[str, list[str]]] = []

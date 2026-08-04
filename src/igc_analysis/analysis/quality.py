@@ -66,6 +66,8 @@ def check_gamma_d_bounds(
     gamma_d: pd.DataFrame,
     low: float = 15.0,
     high: float = 80.0,
+    critical_low: float = 5.0,
+    critical_high: float = 150.0,
 ) -> list[dict]:
     """Flag gamma_d values outside a physically reasonable range.
 
@@ -82,7 +84,7 @@ def check_gamma_d_bounds(
             continue
         cov = row.get("coverage", None)
 
-        if gd < 5 or gd > 150:
+        if gd < critical_low or gd > critical_high:
             flags.append({
                 "check": "gamma_d_bounds",
                 "severity": "critical",
@@ -310,6 +312,7 @@ def run_qc_checks(
     gamma_d: pd.DataFrame,
     vn_results: pd.DataFrame,
     bounds: tuple[float, float] = (15.0, 80.0),
+    critical_bounds: tuple[float, float] = (5.0, 150.0),
 ) -> dict:
     """Run all quality checks and return a structured result.
 
@@ -337,7 +340,13 @@ def run_qc_checks(
     all_flags.extend(check_alkane_count(gamma_d))
 
     # Check 2: physical bounds
-    all_flags.extend(check_gamma_d_bounds(gamma_d, low=bounds[0], high=bounds[1]))
+    all_flags.extend(check_gamma_d_bounds(
+        gamma_d,
+        low=bounds[0],
+        high=bounds[1],
+        critical_low=critical_bounds[0],
+        critical_high=critical_bounds[1],
+    ))
 
     # Check 3: profile shape
     shape, shape_flags = check_profile_shape(gamma_d)

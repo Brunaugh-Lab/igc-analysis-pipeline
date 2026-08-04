@@ -13,10 +13,12 @@ Structural validity is necessary but not sufficient for an analysis. Each workfl
 The implemented end-to-end consumers are:
 
 - `igc-bet --neutral-bundle PATH`, for corrected BET analysis of one block;
+- `igc-dispersive --neutral-bundle PATH`, for coverage-resolved Dorris--Gray
+  analysis of one homologous probe series;
 - `igc-full-peak --neutral-bundle LABEL=PATH`, for nonlinear full-trace
   analysis of one or more independently characterized blocks.
 
-Both validate the neutral bundle before analysis.
+All validate the neutral bundle before analysis.
 
 ### BET readiness
 
@@ -33,6 +35,20 @@ must agree. Legacy loop concentration additionally requires
 The command retains source-neutral injection IDs and property, calibration,
 flow-channel, vapor-pressure, and pressure-basis provenance in its outputs. A
 structurally valid bundle may still produce a non-reportable BET result.
+
+### Dispersive readiness
+
+`igc-dispersive` requires exactly one experiment and one block; at least three
+homologous analytes with unique carbon numbers and at least three calibrated
+coverage points each; complete probe and dead-time traces; sample mass;
+supplied SSA and its source; probe cross-sections and property sources;
+calibration sources; positive nominal coverages; and stable measured
+temperature and flow. Pressure requirements match the corrected BET consumer.
+
+The consumer calculates actual coverage from calibrated amount and the supplied
+SSA. It never substitutes a source-specific default. It records all
+interpolation and extrapolation decisions, and it marks incomplete three-probe
+fits non-reportable.
 
 ### Full-peak readiness
 

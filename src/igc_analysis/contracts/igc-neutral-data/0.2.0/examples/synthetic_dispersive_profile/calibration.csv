@@ -1,0 +1,4 @@
+calibration_id,probe_id,calibration_model,parameter_0,parameter_1,parameter_2,area_unit,amount_unit,calibration_source
+calibration-probe-homolog-08,probe-homolog-08,linear,0,1e-08,,arbitrary_unit_min,mol,synthetic-calibration-v1
+calibration-probe-homolog-09,probe-homolog-09,linear,0,1e-08,,arbitrary_unit_min,mol,synthetic-calibration-v1
+calibration-probe-homolog-10,probe-homolog-10,linear,0,1e-08,,arbitrary_unit_min,mol,synthetic-calibration-v1
