@@ -1,0 +1,43 @@
+{
+  "contract_name": "igc-neutral-data",
+  "contract_version": "0.2.0",
+  "profile": "trace-core",
+  "dataset_id": "synthetic-bet-isotherm-001",
+  "created_at": "2026-01-20T12:00:00-05:00",
+  "adapter_version": "synthetic-bet-generator-1.0.0",
+  "source_fingerprint": "012a10e098381f701099c67de36a64bf49c742191e447d5009b0fec78e826b5d",
+  "files": {
+    "experiment.csv": {
+      "row_count": 1,
+      "sha256": "5d806a2dc89ee6bd731de9676a98380a9411159edca4d77c5f7fb228b0e2eeed"
+    },
+    "columns.csv": {
+      "row_count": 1,
+      "sha256": "d85289020aa2df00e6d7e68bfdb4c4bfec2b053949d4b1b0196c27217a9f5be8"
+    },
+    "conditions.csv": {
+      "row_count": 75,
+      "sha256": "74052b2d86964c121a4c67b2cc4e55bcbf5f50a280058e6f66b2a9e19bc2db1c"
+    },
+    "injections.csv": {
+      "row_count": 15,
+      "sha256": "2dd851840b4f93a86b4c5d56ab1de650e3c4d6f31cd5bcbde3bd01384c06baa1"
+    },
+    "injection_components.csv": {
+      "row_count": 15,
+      "sha256": "2d231fad0e06c3bb10d14a79a73dbe49de388305a8f33707df29c9d52780e606"
+    },
+    "traces.csv": {
+      "row_count": 18765,
+      "sha256": "51ff76de5675592ab12c4bbba4339b0257f29496488e68242df3037a740003eb"
+    },
+    "probe_properties.csv": {
+      "row_count": 2,
+      "sha256": "4ddf324e8ea40f04005c31d3df905a1271d1335d3cb78878ff5a60b5cc6b825e"
+    },
+    "calibration.csv": {
+      "row_count": 1,
+      "sha256": "ceddc9c5f3127eee680ab032c32c0cde30abe334e9c869da7d9729bbab260b9e"
+    }
+  }
+}

@@ -1,0 +1,2 @@
+column_id,packing_replicate_id,column_role,internal_diameter_m,packed_bed_length_m,conditioning_description,sample_batch_id,density_kg_m3,density_basis
+column-bet-001,packing-bet-001,sample,0.004,0.3,synthetic-protocol,batch-bet-synthetic-001,450,bulk_packed

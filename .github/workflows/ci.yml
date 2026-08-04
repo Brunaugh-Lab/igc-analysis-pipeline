@@ -98,8 +98,11 @@ jobs:
 
       - name: Smoke-test wheel commands
         run: |
+          uv run --isolated --no-project --with dist/*.whl igc-bet --help
           uv run --isolated --no-project --with dist/*.whl igc-full-peak --help
           uv run --isolated --no-project --with dist/*.whl igc-ssa-dose --help
+          uv run --isolated --no-project --with dist/*.whl python -c \
+            "import importlib.metadata, igc_analysis; assert igc_analysis.__version__ == importlib.metadata.version('igc-analysis-pipeline')"
 
       - name: Run wheel end to end on synthetic data
         run: |
@@ -113,8 +116,21 @@ jobs:
           test -s wheel-smoke-output/full_peak_run.json
           test -s wheel-smoke-output/README.md
 
+          uv run --isolated --no-project --with dist/*.whl igc-bet \
+            --synthetic-example \
+            --output wheel-bet-smoke-output
+          test -s wheel-bet-smoke-output/bet_run.json
+          test -s wheel-bet-smoke-output/README.md
+          python -c "import json; d=json.load(open('wheel-bet-smoke-output/bet_run.json')); assert d['reportability']['bet_applicable'] is True; assert abs(d['result']['ssa_m2_g'] - 3.793949) < 0.04"
+
       - name: Smoke-test source distribution
-        run: uv run --isolated --no-project --with dist/*.tar.gz igc-full-peak --help
+        run: |
+          uv run --isolated --no-project --with dist/*.tar.gz igc-bet --help
+          uv run --isolated --no-project --with dist/*.tar.gz igc-full-peak --help
+          uv run --isolated --no-project --with dist/*.tar.gz igc-bet \
+            --synthetic-example \
+            --output sdist-bet-smoke-output
+          python -c "import json; d=json.load(open('sdist-bet-smoke-output/bet_run.json')); assert d['reportability']['bet_applicable'] is True; assert abs(d['result']['ssa_m2_g'] - 3.793949) < 0.04"
 
   dependency-audit:
     name: Dependency audit

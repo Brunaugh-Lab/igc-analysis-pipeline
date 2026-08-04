@@ -1,0 +1,16 @@
+injection_id,component_index,probe_id,component_role,target_amount_mol,calibration_id,saturation_vapor_pressure_Pa,vapor_pressure_source,vapor_pressure_model_id
+dead-time-000,0,probe-dead-time-synthetic,dead_time_marker,1e-08,,,,
+probe-injection-001,0,probe-bet-synthetic,analyte,3.31163458933e-09,calibration-bet-synthetic,12000.0,synthetic-closed-form-bet,synthetic-constant-v1
+probe-injection-002,0,probe-bet-synthetic,analyte,6.62326917865e-08,calibration-bet-synthetic,12000.0,synthetic-closed-form-bet,synthetic-constant-v1
+probe-injection-003,0,probe-bet-synthetic,analyte,1.32465383573e-07,calibration-bet-synthetic,12000.0,synthetic-closed-form-bet,synthetic-constant-v1
+probe-injection-004,0,probe-bet-synthetic,analyte,1.9869807536e-07,calibration-bet-synthetic,12000.0,synthetic-closed-form-bet,synthetic-constant-v1
+probe-injection-005,0,probe-bet-synthetic,analyte,2.64930767146e-07,calibration-bet-synthetic,12000.0,synthetic-closed-form-bet,synthetic-constant-v1
+probe-injection-006,0,probe-bet-synthetic,analyte,3.31163458933e-07,calibration-bet-synthetic,12000.0,synthetic-closed-form-bet,synthetic-constant-v1
+probe-injection-007,0,probe-bet-synthetic,analyte,4.30512496612e-07,calibration-bet-synthetic,12000.0,synthetic-closed-form-bet,synthetic-constant-v1
+probe-injection-008,0,probe-bet-synthetic,analyte,5.29861534292e-07,calibration-bet-synthetic,12000.0,synthetic-closed-form-bet,synthetic-constant-v1
+probe-injection-009,0,probe-bet-synthetic,analyte,6.62326917865e-07,calibration-bet-synthetic,12000.0,synthetic-closed-form-bet,synthetic-constant-v1
+probe-injection-010,0,probe-bet-synthetic,analyte,8.27908647332e-07,calibration-bet-synthetic,12000.0,synthetic-closed-form-bet,synthetic-constant-v1
+probe-injection-011,0,probe-bet-synthetic,analyte,9.93490376798e-07,calibration-bet-synthetic,12000.0,synthetic-closed-form-bet,synthetic-constant-v1
+probe-injection-012,0,probe-bet-synthetic,analyte,1.15907210626e-06,calibration-bet-synthetic,12000.0,synthetic-closed-form-bet,synthetic-constant-v1
+probe-injection-013,0,probe-bet-synthetic,analyte,1.32465383573e-06,calibration-bet-synthetic,12000.0,synthetic-closed-form-bet,synthetic-constant-v1
+dead-time-999,0,probe-dead-time-synthetic,dead_time_marker,1e-08,,,,

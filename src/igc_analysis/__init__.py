@@ -1,3 +1,3 @@
 """Source-neutral inverse gas chromatography analysis toolkit."""
 
-__version__ = "2026.7.31"
+__version__ = "2026.8.4"

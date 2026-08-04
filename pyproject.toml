@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "igc-analysis-pipeline"
-version = "2026.7.31"
+dynamic = ["version"]
 description = "Source-neutral analysis toolkit for inverse gas chromatography data"
 readme = "README.md"
 license = "MIT"
@@ -37,11 +37,15 @@ dev = [
 ]
 
 [project.scripts]
+igc-bet = "igc_analysis.cli.bet:main"
 igc-full-peak = "igc_analysis.cli.full_peak:main"
 igc-ssa-dose = "igc_analysis.cli.geometric_ssa:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[tool.setuptools.dynamic]
+version = {attr = "igc_analysis.__version__"}
 
 [tool.setuptools.package-data]
 igc_analysis = [

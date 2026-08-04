@@ -65,6 +65,12 @@ Each row is one condition value for one injection. Multiple rows may preserve be
 
 Allowed quantity/unit pairs are fixed: temperature/K; either flow/m3_s; any pressure/Pa; relative humidity/fraction. Relative humidity spans 0–1 inclusive.
 
+`flow_standard` is a volumetric flow referenced to exactly 273.15 K;
+`flow_column` is the volumetric flow at the declared column temperature.
+`pressure_inlet` and `pressure_outlet` are absolute pressures. `pressure_drop`
+is the nonnegative inlet-minus-outlet differential. Analyses may cross-check
+these redundant pressure declarations and reject inconsistent values.
+
 ## `injections.csv`
 
 Each row is one acquisition event, independent of how many chemical components it contains.

@@ -31,7 +31,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-from igc_analysis.constants import R_GAS
+from igc_analysis.constants import R_GAS, T_STANDARD_K
 from igc_analysis.analysis.column_model import (
     ColumnGeometry, MethaneTransport, SolveResult, TransportParams,
     characterize_methane_transport, make_geometry, solve_column,
@@ -168,6 +168,22 @@ def _neutral_condition_mean(
     ]
     if rows.empty:
         return None
+    if quantity in {"flow_standard", "flow_column"} and value_role == "measured":
+        channels = {
+            str(value).strip()
+            for value in rows["source_channel"]
+            if str(value).strip()
+        }
+        if not channels:
+            raise ValueError(
+                f"neutral injection {injection_id!r} is missing a measured "
+                f"{quantity} source channel"
+            )
+        if len(channels) > 1:
+            raise ValueError(
+                f"neutral injection {injection_id!r} has ambiguous measured "
+                f"{quantity} source channels: {sorted(channels)!r}"
+            )
     values = pd.to_numeric(rows["value"], errors="raise").to_numpy(dtype=float)
     return float(np.mean(values))
 
@@ -332,7 +348,7 @@ def build_trace_dataset_from_neutral(
                         conditions, injection_id, "flow_standard", value_role="target"
                     )
                 if standard_flow is not None and temp_K is not None:
-                    flow_m3_s = standard_flow * temp_K / 273.15
+                    flow_m3_s = standard_flow * temp_K / T_STANDARD_K
             if temp_K is None or flow_m3_s is None or flow_m3_s <= 0:
                 raise ValueError(f"{label}/{injection_id}: temperature or column flow is missing")
             pressure_drop_pa = _neutral_condition_mean(
@@ -441,11 +457,12 @@ def build_trace_dataset_from_neutral(
             pp0 = concentration * R_GAS * temperature_K / p_sat
 
             clipping_value = str(injection_row["clipping_observed"]).casefold()
-            if clipping_value in {"true", "false"}:
-                clipped = clipping_value == "true"
-            else:
-                signal_max = float(np.max(signal_raw))
-                clipped = bool(np.sum(signal_raw >= signal_max * (1 - 1e-6)) >= 8)
+            declared_clipping = clipping_value == "true"
+            signal_max = float(np.max(signal_raw))
+            detected_clipping = bool(
+                np.sum(signal_raw >= signal_max * (1 - 1e-6)) >= 8
+            )
+            clipped = declared_clipping or detected_clipping
 
             result = Injection(
                 block=label,

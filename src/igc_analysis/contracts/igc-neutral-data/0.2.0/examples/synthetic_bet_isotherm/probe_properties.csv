@@ -1,0 +1,3 @@
+probe_id,probe_name,molar_mass_g_mol,cross_section_m2,gamma_l_d_mJ_m2,donor_number_kJ_mol,acceptor_number_kJ_mol,carbon_number,properties_source
+probe-dead-time-synthetic,synthetic dead-time marker,16.0,2e-19,,,,,synthetic-closed-form-bet
+probe-bet-synthetic,synthetic BET probe,114.0,6.3e-19,21.0,,,8,synthetic-closed-form-bet

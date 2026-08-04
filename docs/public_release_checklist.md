@@ -64,6 +64,34 @@ Do not change repository visibility while any item above is unresolved.
   wheel and source-distribution command smoke tests passed.
 - The exact locked runtime dependency audit reported no known vulnerabilities.
 
+The evidence above applies to archived release `v2026.7.31`. The separately
+dated gate below covers the BET command added in release candidate `v2026.8.4`.
+
+## BET candidate gate — 2026-08-04
+
+- [x] Resolve every P1/P2 finding from the initial independent read-only audit.
+- [x] Demonstrate a nondegenerate synthetic Type II fit through the installed
+  wheel and a synthetic Type III abstention in the workflow regression suite.
+- [x] Obtain a second independent read-only review of the remediated diff.
+  Claude Code reported no P0/P1 findings and confirmed every original P0--P2
+  item fixed by execution. Its two P2 hardening recommendations were resolved
+  with single-source package versioning and a full-peak clipping regression.
+- [x] Complete governed legacy-versus-neutral equivalence against the final
+  corrected historical workflow without committing governed data or outputs.
+  The 2026-08-04 positive-control comparison agreed to floating-point precision
+  across the numerical fit, pressure correction, QC, classification, and
+  reportability; sensitive evidence remains outside this repository.
+- [x] Re-run the complete suite, lint, lock, working-tree boundary, artifact,
+  installed-wheel, and dependency checks. On 2026-08-04, 285 tests passed;
+  Ruff, lock integrity, and diff checks passed; all 79 tracked and candidate
+  paths passed the content boundary; both 2026.8.4 release distributions built and
+  passed artifact scans; the isolated wheel recovered the packaged Type II
+  example with clean QC; and the locked runtime audit found no known
+  vulnerabilities. Repeat the boundary check against the staged tree before
+  commit and rely on GitHub CI for release evidence.
+- [ ] Update `CITATION.cff`, tag the immutable release, and record the new
+  version DOI only after the release exists. Keep the concept DOI unchanged.
+
 ## Final visibility-change procedure
 
 1. Fetch the remote and confirm local `main` matches `origin/main`.

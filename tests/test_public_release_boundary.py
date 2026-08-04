@@ -10,6 +10,7 @@ SPEC.loader.exec_module(BOUNDARY_MODULE)
 
 RESERVED_PREFIXES = BOUNDARY_MODULE.RESERVED_PREFIXES
 SYNTHETIC_DATA_PREFIX = BOUNDARY_MODULE.SYNTHETIC_DATA_PREFIX
+SYNTHETIC_BET_DATA_PREFIX = BOUNDARY_MODULE.SYNTHETIC_BET_DATA_PREFIX
 forbidden_text_labels = BOUNDARY_MODULE.forbidden_text_labels
 is_allowed_data_file = BOUNDARY_MODULE.is_allowed_data_file
 is_reserved = BOUNDARY_MODULE.is_reserved
@@ -29,10 +30,12 @@ def test_public_source_and_synthetic_contract_fixture_are_allowed():
             "examples/synthetic_peak_shape/traces.csv"
         )
     )
+    assert is_allowed_data_file(SYNTHETIC_BET_DATA_PREFIX / "traces.csv")
 
 
 def test_only_contract_fixture_data_files_are_allowed():
     assert is_allowed_data_file(SYNTHETIC_DATA_PREFIX / "traces.csv")
+    assert is_allowed_data_file(SYNTHETIC_BET_DATA_PREFIX / "traces.csv")
     assert not is_allowed_data_file(PurePosixPath("tests/fixtures/measurements.csv"))
     assert not is_allowed_data_file(PurePosixPath("study.xlsx"))
     assert is_allowed_data_file(PurePosixPath("docs/architecture.md"))

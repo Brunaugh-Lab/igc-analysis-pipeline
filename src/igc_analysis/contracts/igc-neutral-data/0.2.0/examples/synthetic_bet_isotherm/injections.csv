@@ -1,0 +1,16 @@
+experiment_id,injection_id,block_id,sequence_index,acquired_at,role,target_coverage_fraction,detector_gain,detector_channel,clipping_observed
+experiment-bet-001,dead-time-000,block-bet-001,0,2026-01-20T09:00:00-05:00,dead_time,,1.0,detector-primary,false
+experiment-bet-001,probe-injection-001,block-bet-001,1,2026-01-20T09:05:00-05:00,probe,0.001,1.0,detector-primary,false
+experiment-bet-001,probe-injection-002,block-bet-001,2,2026-01-20T09:10:00-05:00,probe,0.02,1.0,detector-primary,false
+experiment-bet-001,probe-injection-003,block-bet-001,3,2026-01-20T09:15:00-05:00,probe,0.04,1.0,detector-primary,false
+experiment-bet-001,probe-injection-004,block-bet-001,4,2026-01-20T09:20:00-05:00,probe,0.06,1.0,detector-primary,false
+experiment-bet-001,probe-injection-005,block-bet-001,5,2026-01-20T09:25:00-05:00,probe,0.08,1.0,detector-primary,false
+experiment-bet-001,probe-injection-006,block-bet-001,6,2026-01-20T09:30:00-05:00,probe,0.1,1.0,detector-primary,false
+experiment-bet-001,probe-injection-007,block-bet-001,7,2026-01-20T09:35:00-05:00,probe,0.13,1.0,detector-primary,false
+experiment-bet-001,probe-injection-008,block-bet-001,8,2026-01-20T09:40:00-05:00,probe,0.16,1.0,detector-primary,false
+experiment-bet-001,probe-injection-009,block-bet-001,9,2026-01-20T09:45:00-05:00,probe,0.2,1.0,detector-primary,false
+experiment-bet-001,probe-injection-010,block-bet-001,10,2026-01-20T09:50:00-05:00,probe,0.25,1.0,detector-primary,false
+experiment-bet-001,probe-injection-011,block-bet-001,11,2026-01-20T09:55:00-05:00,probe,0.3,1.0,detector-primary,false
+experiment-bet-001,probe-injection-012,block-bet-001,12,2026-01-20T10:00:00-05:00,probe,0.35,1.0,detector-primary,false
+experiment-bet-001,probe-injection-013,block-bet-001,13,2026-01-20T10:05:00-05:00,probe,0.4,1.0,detector-primary,false
+experiment-bet-001,dead-time-999,block-bet-001,14,2026-01-20T10:10:00-05:00,dead_time,,1.0,detector-primary,false

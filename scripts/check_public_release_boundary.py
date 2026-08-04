@@ -20,6 +20,10 @@ RESERVED_PREFIXES = (
 SYNTHETIC_DATA_PREFIX = PurePosixPath(
     "src/igc_analysis/contracts/igc-neutral-data/0.2.0/examples/synthetic_peak_shape"
 )
+SYNTHETIC_BET_DATA_PREFIX = PurePosixPath(
+    "src/igc_analysis/contracts/igc-neutral-data/0.2.0/examples/synthetic_bet_isotherm"
+)
+SYNTHETIC_DATA_PREFIXES = (SYNTHETIC_DATA_PREFIX, SYNTHETIC_BET_DATA_PREFIX)
 DATA_EXTENSIONS = {
     "." + "accdb",
     ".csv",
@@ -68,7 +72,8 @@ def is_reserved(path: PurePosixPath) -> bool:
 def is_allowed_data_file(path: PurePosixPath) -> bool:
     if path.suffix.lower() not in DATA_EXTENSIONS:
         return True
-    return path == SYNTHETIC_DATA_PREFIX or SYNTHETIC_DATA_PREFIX in path.parents
+    return any(path == prefix or prefix in path.parents
+               for prefix in SYNTHETIC_DATA_PREFIXES)
 
 
 def forbidden_text_labels(content: bytes) -> list[str]:

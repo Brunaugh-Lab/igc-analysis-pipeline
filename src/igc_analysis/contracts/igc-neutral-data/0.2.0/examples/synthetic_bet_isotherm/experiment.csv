@@ -1,0 +1,2 @@
+dataset_id,experiment_id,sample_id,sample_mass_g,injection_loop_volume_m3,column_id,acquisition_started_at,specific_surface_area_m2_g,surface_area_source
+synthetic-bet-isotherm-001,experiment-bet-001,sample-bet-synthetic-001,0.25,2e-06,column-bet-001,2026-01-20T09:00:00-05:00,,

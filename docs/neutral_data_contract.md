@@ -8,9 +8,35 @@ The public analysis package accepts `igc-neutral-data/0.2.0` bundles. Protected-
 
 Structural validity is necessary but not sufficient for an analysis. Each workflow must separately check that its required probes, calibration, conditions, dead-time relationship, sample metadata, and study design are present.
 
-## Full-peak path
+## Implemented consumer paths
 
-`igc-full-peak --neutral-bundle LABEL=PATH` is the first end-to-end consumer. It:
+The implemented end-to-end consumers are:
+
+- `igc-bet --neutral-bundle PATH`, for corrected BET analysis of one block;
+- `igc-full-peak --neutral-bundle LABEL=PATH`, for nonlinear full-trace
+  analysis of one or more independently characterized blocks.
+
+Both validate the neutral bundle before analysis.
+
+### BET readiness
+
+`igc-bet` requires exactly one experiment, one acquisition block, one uniquely
+selected analyte probe, at least one dead-time trace, calibrated probe traces,
+sample mass, molecular cross-section, per-injection saturation vapor pressure,
+temperature, and a uniquely attributed flow channel for measured flow. Pressure
+correction additionally requires either absolute inlet pressure or pressure drop;
+outlet pressure may be declared or supplied explicitly as the ambient-pressure
+CLI setting. When both absolute pressures and pressure drop are declared, they
+must agree. Legacy loop concentration additionally requires
+`injection_loop_volume_m3`.
+
+The command retains source-neutral injection IDs and property, calibration,
+flow-channel, vapor-pressure, and pressure-basis provenance in its outputs. A
+structurally valid bundle may still produce a non-reportable BET result.
+
+### Full-peak readiness
+
+The full-peak consumer:
 
 - preserves the complete raw detector trace and acquisition sequence;
 - obtains sample mass, flow, temperature, pressure drop, probe identity, saturation pressure, detector gain, and calibration from declared neutral fields;

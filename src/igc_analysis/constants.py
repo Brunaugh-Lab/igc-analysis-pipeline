@@ -16,6 +16,9 @@ R_GAS: float = 8.314462618  # J/(mol·K) — NIST 2018 CODATA
 N_AVOGADRO: float = 6.02214076e23  # mol⁻¹ — exact (2019 SI)
 """Avogadro's number."""
 
+T_STANDARD_K: float = 273.15
+"""Reference temperature for neutral ``flow_standard`` values (K)."""
+
 # ---------------------------------------------------------------------------
 # Dorris-Gray reference surface (polyethylene / CH₂)
 # ---------------------------------------------------------------------------

@@ -10,11 +10,11 @@ for the geometric surface-area dosing utility.
 
 ## Current release boundary
 
-The implemented end-to-end chromatography workflow is full-peak nonlinear
-analysis through `igc-neutral-data/0.2.0`. The repository also provides a
-geometric surface-area dosing utility.
+The implemented end-to-end chromatography workflows are corrected BET surface
+area and full-peak nonlinear analysis through `igc-neutral-data/0.2.0`. The
+repository also provides a geometric surface-area dosing utility.
 
-Calculation modules for BET, dispersive surface energy, acid-base analysis,
+Calculation modules for dispersive surface energy, acid-base analysis,
 retention, peak detection, and quality control remain available for development
 and unit testing. Their former source-coupled command-line workflows have been
 removed. They will be exposed again only after neutral-contract consumers and
@@ -40,6 +40,43 @@ On Windows PowerShell, activate the environment with:
 
 No acquisition-system runtime or source-specific library is required by this
 repository.
+
+## BET surface-area analysis
+
+Run the corrected BET workflow on one validated neutral bundle:
+
+```bash
+igc-bet \
+  --neutral-bundle /path/to/neutral_bundle \
+  --output output/bet
+```
+
+The default calculation preserves the validated conventions from the final
+pre-split workflow: eluted peak-apex concentration, calibrated injected amount,
+per-injection measured column flow, direct absolute-pressure or pressure-drop
+James--Martin correction, matched dead-time convention, sensitivity analyses,
+and a strict reportability gate. The legacy loop-concentration convention is
+available only as an explicit comparison with `--concentration loop`.
+
+Outputs include injection, isotherm, and linearization CSVs; vector and raster
+diagnostic figures; a strict-JSON run record; and a short interpretation README.
+A numerical fit is not automatically reportable: use the reportability verdict
+and review every QC message.
+
+Run the packaged nondegenerate closed-form synthetic example:
+
+```bash
+igc-bet \
+  --synthetic-example \
+  --output output/synthetic-bet
+```
+
+This fixture is generated from a known Type II BET isotherm and exercises a
+finite fit and positive reportability gate. It demonstrates synthetic numerical
+recovery, not equivalence on governed experimental data.
+
+See `docs/bet_architecture.md` for equations, readiness requirements, and the
+verification boundary.
 
 ## Full-peak analysis
 
@@ -163,8 +200,8 @@ boundary check that rejects tracked files under the reserved local-data paths;
 
 GitHub Actions verifies the locked environment, runs the test suite on Python
 3.10 through 3.14, enforces release-blocking lint checks, builds and installs
-both distribution formats, runs the full-peak wheel on synthetic data, and
-audits the locked runtime dependencies for known vulnerabilities.
+both distribution formats, runs the BET and full-peak wheels on synthetic data,
+and audits the locked runtime dependencies for known vulnerabilities.
 
 ## Repository structure
 
@@ -199,6 +236,9 @@ If you use this software for an analysis, cite the archived version you used:
 Use the version DOI in manuscripts that depend on a specific software release.
 Use the concept DOI on websites or when referring to the evolving project
 generally. Machine-readable citation metadata are provided in `CITATION.cff`.
+Release `v2026.8.4` adds the corrected source-neutral BET workflow. Its version
+DOI will be recorded here after Zenodo ingests the immutable GitHub release;
+until then, the concept DOI resolves to the evolving archival record.
 
 ## License
 

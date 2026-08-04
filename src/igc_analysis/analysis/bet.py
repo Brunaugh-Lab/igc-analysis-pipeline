@@ -57,6 +57,8 @@ class InjectionResult:
     conditions_source: str = ""          # "measured" / "method_target"
     asymmetry_factor: float = float("nan")
     peak_clipped: bool = False           # apex at/above the digitiser ceiling
+    p_sat_Pa: float = float("nan")       # declared/evaluated per-injection P_sat
+    injection_id: str = ""               # neutral source key when available
 
 
 @dataclass
@@ -67,6 +69,7 @@ class IsothermPoint:
     n_adsorbed_mmol_g: float    # amount adsorbed (mMol/g)
     V_N_mL: float               # net retention volume at this point
     concentration_mol_m3: float = float("nan")  # gas-phase concentration
+    injection_id: str = ""      # neutral source key when available
 
 
 @dataclass
@@ -251,6 +254,9 @@ class BETResult:
     origin_strategy: str = "legacy"
     conditions_source: str = ""   # "measured" / "method_target" / "mixed"
     flow_sccm: float = float("nan")
+    flow_source_channels: tuple[str, ...] = ()
+    pressure_source: str = ""
+    pressure_basis: tuple[str, ...] = ()
 
     # QC (populated by bet_quality_checks)
     qc: BETQCFlags | None = None
@@ -728,9 +734,9 @@ def _fit_bet_window(
             r_squared=float("nan"),
             slope=float("nan"),
             intercept=float("nan"),
-            n_points=len(x),
+            n_points=0,
             p_over_p0_range=(p0_min, p0_max),
-            bet_x=x,
+            bet_x=np.array([]),
             bet_y=np.array([]),
             cross_section_m2=cross_section_m2,
         )
@@ -1253,6 +1259,11 @@ class _InjectionRecord:
     j_factor: float
     conditions_source: str
     clipped: bool
+    # Neutral bundles carry the already-evaluated, source-attributed vapour
+    # pressure for each injection. Legacy calculation-level callers may omit
+    # it and continue to evaluate P_sat from ``props``.
+    p_sat_Pa: float | None = None
+    injection_id: str = ""
 
 
 def _assemble_result(
@@ -1290,7 +1301,13 @@ def _assemble_result(
         t_net = t_R - t0
         V_N_mL = rec.j_factor * t_net * rec.flow_col_mL_min
 
-        P_sat = props.p_sat(rec.temp_col_K)
+        P_sat = (
+            float(rec.p_sat_Pa)
+            if rec.p_sat_Pa is not None and math.isfinite(rec.p_sat_Pa)
+            else props.p_sat(rec.temp_col_K)
+        )
+        if P_sat <= 0:
+            raise ValueError("saturation vapour pressure must be positive")
         if concentration_mode == "loop":
             c = rec.n_injected_mol / V_loop_m3
         else:
@@ -1318,6 +1335,8 @@ def _assemble_result(
             conditions_source=rec.conditions_source,
             asymmetry_factor=rec.peak.get("asymmetry_factor", float("nan")),
             peak_clipped=rec.clipped,
+            p_sat_Pa=P_sat,
+            injection_id=rec.injection_id,
         ))
 
     # Sort by concentration for isotherm integration.
@@ -1340,7 +1359,9 @@ def _assemble_result(
 
     isotherm = [
         IsothermPoint(P_over_P0=float(pp0), n_adsorbed_mmol_g=float(q),
-                      V_N_mL=inj.V_N_mL, concentration_mol_m3=inj.concentration_mol_m3)
+                      V_N_mL=inj.V_N_mL,
+                      concentration_mol_m3=inj.concentration_mol_m3,
+                      injection_id=inj.injection_id)
         for pp0, q, inj in zip(pp0_arr, q_mmol_g, iso_inj)
     ]
 
@@ -1364,8 +1385,41 @@ def _assemble_result(
     if injections:
         result.temperature_K = float(np.mean([i.temp_col_K for i in injections]))
         result.james_martin_j = float(np.mean([i.j_factor for i in injections]))
-        result.p_sat_Pa = props.p_sat(result.temperature_K)
+        result.p_sat_Pa = float(np.mean([i.p_sat_Pa for i in injections]))
         sources = {i.conditions_source for i in injections}
         result.conditions_source = (sources.pop() if len(sources) == 1
                                     else "mixed")
     return result
+
+
+def compute_bet_diagnostics(
+    result: BETResult,
+    methane: MethaneStats,
+    p0_min: float,
+    p0_max: float,
+) -> BETDiagnostics:
+    """Compute the diagnostic envelope used by the corrected BET workflow."""
+
+    injections = result.injections
+    pp0 = [item.P_over_P0 for item in injections
+           if not math.isnan(item.P_over_P0)]
+    net = [item.net_retention_time_min for item in injections
+           if not math.isnan(item.net_retention_time_min)]
+    positive_net = [value for value in net if value > 0]
+
+    diagnostics = BETDiagnostics(
+        pp0_min=min(pp0) if pp0 else float("nan"),
+        pp0_max=max(pp0) if pp0 else float("nan"),
+        n_points_in_window=sum(1 for value in pp0 if p0_min <= value <= p0_max),
+        n_negative_net_retention=sum(1 for value in net if value <= 0),
+        n_clipped_peaks=sum(1 for item in injections if item.peak_clipped),
+        median_net_retention_min=(
+            float(np.median(positive_net)) if positive_net else float("nan")
+        ),
+        methane=methane,
+    )
+    if positive_net and methane.sd_max_min > 0:
+        diagnostics.signal_to_methane_ratio = (
+            diagnostics.median_net_retention_min / methane.sd_max_min
+        )
+    return diagnostics
