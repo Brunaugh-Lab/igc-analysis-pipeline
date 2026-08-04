@@ -89,8 +89,11 @@ dated gate below covers the BET command added in release candidate `v2026.8.4`.
   example with clean QC; and the locked runtime audit found no known
   vulnerabilities. Repeat the boundary check against the staged tree before
   commit and rely on GitHub CI for release evidence.
-- [ ] Update `CITATION.cff`, tag the immutable release, and record the new
-  version DOI only after the release exists. Keep the concept DOI unchanged.
+- [x] Update `CITATION.cff`, tag the immutable release, and record the new
+  version DOI only after the release exists. Release `v2026.8.4` points to
+  verified commit `c9c7465`; GitHub Actions run `30939032517` passed; Zenodo
+  archived the release at version DOI `10.5281/zenodo.21796032`; and the concept
+  DOI remains `10.5281/zenodo.21760976`.
 
 ## Final visibility-change procedure
 

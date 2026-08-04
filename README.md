@@ -235,15 +235,14 @@ post-release checks are recorded in `docs/public_release_checklist.md`.
 
 If you use this software for an analysis, cite the archived version you used:
 
+- version `v2026.8.4`: <https://doi.org/10.5281/zenodo.21796032>
 - version `v2026.7.31`: <https://doi.org/10.5281/zenodo.21760977>
 - all-versions concept DOI: <https://doi.org/10.5281/zenodo.21760976>
 
 Use the version DOI in manuscripts that depend on a specific software release.
 Use the concept DOI on websites or when referring to the evolving project
 generally. Machine-readable citation metadata are provided in `CITATION.cff`.
-Release `v2026.8.4` adds the corrected source-neutral BET workflow. Its version
-DOI will be recorded here after Zenodo ingests the immutable GitHub release;
-until then, the concept DOI resolves to the evolving archival record.
+Release `v2026.8.4` adds the corrected source-neutral BET workflow.
 
 ## License
 
