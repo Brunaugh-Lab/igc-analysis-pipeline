@@ -15,6 +15,8 @@ The implemented end-to-end consumers are:
 - `igc-bet --neutral-bundle PATH`, for corrected BET analysis of one block;
 - `igc-dispersive --neutral-bundle PATH`, for coverage-resolved Dorris--Gray
   analysis of one homologous probe series;
+- `igc-acid-base --neutral-bundle PATH`, for explicitly selected,
+  coverage-resolved Schultz--Gutmann characterization;
 - `igc-full-peak --neutral-bundle LABEL=PATH`, for nonlinear full-trace
   analysis of one or more independently characterized blocks.
 
@@ -59,6 +61,15 @@ The consumer calculates actual coverage from calibrated amount and the supplied
 SSA. It never substitutes a source-specific default. It records all
 interpolation and extrapolation decisions, and it marks incomplete three-probe
 fits non-reportable.
+
+### Acid/base readiness
+
+`igc-acid-base` inherits every dispersive readiness requirement and also
+requires an explicit polar-probe inclusion policy. Each selected polar probe
+must declare source-attributed `gamma_l_d_mJ_m2`,
+`donor_number_kJ_mol`, and `acceptor_number_kJ_mol`. At least three polar
+probes are required for a regression-derived result. Chemical names never
+determine roles or silently supply properties.
 
 ### Full-peak readiness
 

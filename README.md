@@ -11,12 +11,13 @@ for the geometric surface-area dosing utility.
 ## Current release boundary
 
 The implemented end-to-end chromatography workflows are corrected BET surface
-area, Dorris--Gray dispersive surface energy, and full-peak nonlinear analysis
-through `igc-neutral-data/0.2.0`. The repository also provides a geometric
-surface-area dosing utility.
+area, Dorris--Gray dispersive surface energy, Schultz--Gutmann acid/base
+characterization, and full-peak nonlinear analysis through
+`igc-neutral-data/0.2.0`. The repository also provides a geometric surface-area
+dosing utility.
 
-Calculation modules for acid-base analysis, retention, peak detection, and
-quality control remain available for development and unit testing. Any former
+Lower-level calculation modules for retention, peak detection, and quality
+control remain available for development and unit testing. Any former
 source-coupled command-line workflows remain removed; public workflows consume
 only the neutral contract and source-attributed scientific properties.
 
@@ -123,6 +124,45 @@ It verifies numerical recovery, not equivalence on governed experimental data.
 See `docs/dispersive_architecture.md` for equations, reportability, and the
 interpretation boundary.
 
+## Acid/base surface characterization
+
+Run the coverage-resolved Schultz--Gutmann workflow by explicitly declaring
+both the homologous reference series and the polar-probe inclusion set:
+
+```bash
+igc-acid-base \
+  --neutral-bundle /path/to/neutral_bundle \
+  --homologous-probe-id probe-id-1 \
+  --homologous-probe-id probe-id-2 \
+  --homologous-probe-id probe-id-3 \
+  --polar-probe-id probe-id-4 \
+  --polar-probe-id probe-id-5 \
+  --polar-probe-id probe-id-6 \
+  --output output/acid-base
+```
+
+The workflow never infers probe roles or properties from chemical names. Every
+selected probe requires source-attributed cross-section and dispersive liquid
+surface tension; polar probes additionally require declared donor and modified
+acceptor numbers. Center-of-mass retention is primary, while peak maximum is
+retained as a sensitivity calculation matching the historical convention.
+At least three polar probes are required so Ka and Kb come from a regression,
+not a two-point deterministic solve.
+
+Run the closed-form synthetic recovery example:
+
+```bash
+igc-acid-base \
+  --synthetic-example \
+  --output output/synthetic-acid-base
+```
+
+The synthetic fixture recovers known Ka and Kb values from detector traces.
+Van Oss analysis is intentionally not exposed: its additional liquid-component
+properties are not yet represented with explicit provenance in the neutral
+contract. See `docs/acid_base_architecture.md` for equations, reportability,
+and interpretation limits.
+
 ## Full-peak analysis
 
 Each input must be a validated `igc-neutral-data/0.2.0` bundle. Supply one
@@ -190,8 +230,8 @@ It includes:
 - `MIGRATION.md` — compatibility rules;
 - `examples/synthetic_peak_shape/` — fully synthetic full-peak example;
 - `examples/synthetic_bet_isotherm/` — closed-form BET recovery example;
-- `examples/synthetic_dispersive_profile/` — closed-form dispersive recovery
-  example.
+- `examples/synthetic_dispersive_profile/` — closed-form dispersive and
+  Schultz--Gutmann recovery example.
 
 Validate a bundle directly with:
 
@@ -248,8 +288,8 @@ boundary check that rejects tracked files under the reserved local-data paths;
 
 GitHub Actions verifies the locked environment, runs the test suite on Python
 3.10 through 3.14, enforces release-blocking lint checks, builds and installs
-both distribution formats, runs the BET, dispersive, and full-peak wheels on
-synthetic data, and audits the locked runtime dependencies for known
+both distribution formats, runs the BET, dispersive, acid/base, and full-peak
+wheels on synthetic data, and audits the locked runtime dependencies for known
 vulnerabilities.
 
 ## Repository structure

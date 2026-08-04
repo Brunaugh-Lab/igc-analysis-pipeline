@@ -100,6 +100,7 @@ jobs:
         run: |
           uv run --isolated --no-project --with dist/*.whl igc-bet --help
           uv run --isolated --no-project --with dist/*.whl igc-dispersive --help
+          uv run --isolated --no-project --with dist/*.whl igc-acid-base --help
           uv run --isolated --no-project --with dist/*.whl igc-full-peak --help
           uv run --isolated --no-project --with dist/*.whl igc-ssa-dose --help
           uv run --isolated --no-project --with dist/*.whl python -c \
@@ -131,10 +132,18 @@ jobs:
           test -s wheel-dispersive-smoke-output/README.md
           python -c "import json; d=json.load(open('wheel-dispersive-smoke-output/dispersive_run.json')); assert d['result']['reportable'] is True; assert abs(d['result']['gamma_d_min_mJm2'] - 40.0) < 0.2"
 
+          uv run --isolated --no-project --with dist/*.whl igc-acid-base \
+            --synthetic-example \
+            --output wheel-acid-base-smoke-output
+          test -s wheel-acid-base-smoke-output/acid_base_run.json
+          test -s wheel-acid-base-smoke-output/README.md
+          python -c "import json; d=json.load(open('wheel-acid-base-smoke-output/acid_base_run.json')); assert d['result']['reportable'] is True"
+
       - name: Smoke-test source distribution
         run: |
           uv run --isolated --no-project --with dist/*.tar.gz igc-bet --help
           uv run --isolated --no-project --with dist/*.tar.gz igc-dispersive --help
+          uv run --isolated --no-project --with dist/*.tar.gz igc-acid-base --help
           uv run --isolated --no-project --with dist/*.tar.gz igc-full-peak --help
           uv run --isolated --no-project --with dist/*.tar.gz igc-bet \
             --synthetic-example \
@@ -144,6 +153,10 @@ jobs:
             --synthetic-example \
             --output sdist-dispersive-smoke-output
           python -c "import json; d=json.load(open('sdist-dispersive-smoke-output/dispersive_run.json')); assert d['result']['reportable'] is True; assert abs(d['result']['gamma_d_min_mJm2'] - 40.0) < 0.2"
+          uv run --isolated --no-project --with dist/*.tar.gz igc-acid-base \
+            --synthetic-example \
+            --output sdist-acid-base-smoke-output
+          python -c "import json; d=json.load(open('sdist-acid-base-smoke-output/acid_base_run.json')); assert d['result']['reportable'] is True"
 
   dependency-audit:
     name: Dependency audit

@@ -4,8 +4,8 @@
   "profile": "trace-core",
   "dataset_id": "synthetic-dispersive-profile-001",
   "created_at": "2026-01-21T12:00:00-05:00",
-  "adapter_version": "synthetic-dispersive-generator-1.0.0",
-  "source_fingerprint": "1043b4175209f063bff1f3019d5a836025b498d21531785d012b52e27aab56a3",
+  "adapter_version": "synthetic-surface-energy-generator-2.0.0",
+  "source_fingerprint": "374e51027a4b54ed077e8693a6b2e5d4176b380f73d9c91c5183723800298fbe",
   "files": {
     "experiment.csv": {
       "row_count": 1,
@@ -16,28 +16,28 @@
       "sha256": "37e1d41c8e5ee5bcb5d6a5895be0456b4f5f203050f6d8a055b2117a0a0d7654"
     },
     "conditions.csv": {
-      "row_count": 70,
-      "sha256": "616cf5b0879950f21c53f48beeb1be7fd9e1a536599b99b9644fa1b3ea5f4a74"
+      "row_count": 130,
+      "sha256": "50305e8c5c75209ac88bce317a6fdc67d80de9d37bfd88a4ac9b6e5536e03ed9"
     },
     "injections.csv": {
-      "row_count": 14,
-      "sha256": "20763cb4a642f0ac4a09ddda2b99efdb25219786f2b5ebb7c9541490d7854efb"
+      "row_count": 26,
+      "sha256": "5604dc81038df79f4df1993e970b78d0518a3a137c7ffc46e283b801fb97ebd1"
     },
     "injection_components.csv": {
-      "row_count": 14,
-      "sha256": "777730572e43f36c5d1c1089003c711aaa5b985be6e83057c6f2f4311a8a5274"
+      "row_count": 26,
+      "sha256": "ff9e1391edc4c5b4028992ab6648cccad3a1ca4fd433b89e1acc6c7e848de45e"
     },
     "traces.csv": {
-      "row_count": 21014,
-      "sha256": "ecb8747d63bc6ce33d01a796be91b3de9f8e7ba451735709ad318523e9ded427"
+      "row_count": 39026,
+      "sha256": "a1faf81deb8fb46f3c6e163083e97f3030895235fee99bff756ddd2137628ff7"
     },
     "probe_properties.csv": {
-      "row_count": 4,
-      "sha256": "f6423b8482ed3cf7c1ee1a69bd090af84c75487a68a2d6076c175c8880302737"
+      "row_count": 7,
+      "sha256": "cfdd32b68fc608e472dd229208c589f8031e529a195fb3fb931bb24ff58ba437"
     },
     "calibration.csv": {
-      "row_count": 3,
-      "sha256": "f0243943bc0387090010a5da7f8793c79b38026fea0499f3e4773f046313da9e"
+      "row_count": 6,
+      "sha256": "0df7a2091f7c7cf4ae49d8925c49e369425a47cd9d9f67361c38c95a360ad84e"
     }
   }
 }

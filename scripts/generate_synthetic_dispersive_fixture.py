@@ -46,12 +46,20 @@ R_GAS = 8.314462618
 A_CH2_M2 = 6.0e-20
 GAMMA_CH2_J_M2 = (35.6 - 0.058 * (TEMPERATURE_K - 293.15)) * 1e-3
 TARGET_GAMMA_D_MJ_M2 = 40.0
+TARGET_KA = 0.03
+TARGET_KB = 0.05
 TARGET_COVERAGES = (0.01, 0.02, 0.03, 0.04)
 
 PROBES = (
-    ("probe-homolog-08", "synthetic homolog C8", 8, 5.1e-19, -0.001),
-    ("probe-homolog-09", "synthetic homolog C9", 9, 5.7e-19, 0.000),
-    ("probe-homolog-10", "synthetic homolog C10", 10, 6.3e-19, 0.001),
+    ("probe-homolog-08", "synthetic homolog C8", 8, 5.1e-19, 20.0, -0.001),
+    ("probe-homolog-09", "synthetic homolog C9", 9, 5.7e-19, 20.0, 0.000),
+    ("probe-homolog-10", "synthetic homolog C10", 10, 6.3e-19, 20.0, 0.001),
+)
+
+POLAR_PROBES = (
+    ("probe-polar-01", "synthetic polar probe 1", 5.3e-19, 18.0, 5.0, 20.0, -0.001),
+    ("probe-polar-02", "synthetic polar probe 2", 5.6e-19, 19.0, 15.0, 10.0, 0.000),
+    ("probe-polar-03", "synthetic polar probe 3", 5.8e-19, 20.0, 25.0, 5.0, 0.001),
 )
 
 FILE_ORDER = (
@@ -131,6 +139,34 @@ def _retention_volume_mL_g(carbon_number: int, coverage: float) -> float:
     )
 
 
+def _polar_retention_volume_mL_g(
+    cross_section_m2: float,
+    gamma_l_d_mJ_m2: float,
+    donor_number_kJ_mol: float,
+    acceptor_number_kJ_mol: float,
+    coverage: float,
+) -> float:
+    homolog_x = [
+        cross * math.sqrt(gamma * 1e-3)
+        for _, _, _, cross, gamma, _ in PROBES
+    ]
+    homolog_y = [
+        R_GAS * TEMPERATURE_K * math.log(_retention_volume_mL_g(carbon, coverage))
+        for _, _, carbon, _, _, _ in PROBES
+    ]
+    slope = (homolog_y[-1] - homolog_y[0]) / (homolog_x[-1] - homolog_x[0])
+    intercept = homolog_y[0] - slope * homolog_x[0]
+    x_value = cross_section_m2 * math.sqrt(gamma_l_d_mJ_m2 * 1e-3)
+    delta_g_sp_j_mol = 1000.0 * (
+        TARGET_KA * donor_number_kJ_mol
+        + TARGET_KB * acceptor_number_kJ_mol
+    )
+    return math.exp(
+        (slope * x_value + intercept + delta_g_sp_j_mol)
+        / (R_GAS * TEMPERATURE_K)
+    )
+
+
 def generate(output: Path = DEFAULT_OUTPUT) -> None:
     output.mkdir(parents=True, exist_ok=True)
     injection_rows: list[dict] = []
@@ -148,6 +184,7 @@ def generate(output: Path = DEFAULT_OUTPUT) -> None:
         actual_coverage: float | None = None,
         carbon_number: int | None = None,
         cross_section_m2: float | None = None,
+        retention_volume_mL_g: float | None = None,
     ) -> None:
         acquired_minute = sequence_index * 4
         acquired_at = (
@@ -184,7 +221,6 @@ def generate(output: Path = DEFAULT_OUTPUT) -> None:
             trace_specs.append((injection_id, T0_MIN, 8.0, DEAD_SIGMA_MIN, False))
         else:
             assert actual_coverage is not None
-            assert carbon_number is not None
             assert cross_section_m2 is not None
             capacity_mol = (
                 SSA_M2_G * SAMPLE_MASS_G
@@ -193,7 +229,11 @@ def generate(output: Path = DEFAULT_OUTPUT) -> None:
             amount_mol = actual_coverage * capacity_mol
             area = amount_mol / CALIBRATION_MOL_PER_AREA
             amplitude = area / _probe_area_factor()
-            vn_mL_g = _retention_volume_mL_g(carbon_number, actual_coverage)
+            vn_mL_g = (
+                retention_volume_mL_g
+                if retention_volume_mL_g is not None
+                else _retention_volume_mL_g(carbon_number, actual_coverage)
+            )
             cofm_retention_min = (
                 T0_MIN
                 + vn_mL_g * SAMPLE_MASS_G
@@ -229,7 +269,7 @@ def generate(output: Path = DEFAULT_OUTPUT) -> None:
         target_coverage=None,
     )
     sequence = 1
-    for probe_id, _, carbon_number, cross_section_m2, offset in PROBES:
+    for probe_id, _, carbon_number, cross_section_m2, _, offset in PROBES:
         for target in TARGET_COVERAGES:
             add_injection(
                 f"injection-{carbon_number:02d}-{sequence:03d}",
@@ -243,6 +283,26 @@ def generate(output: Path = DEFAULT_OUTPUT) -> None:
                 ),
                 carbon_number=carbon_number,
                 cross_section_m2=cross_section_m2,
+            )
+            sequence += 1
+    for probe_id, _, cross_section_m2, gamma_l_d, dn, an_star, offset in POLAR_PROBES:
+        for target in TARGET_COVERAGES:
+            actual_coverage = (
+                target if target == TARGET_COVERAGES[0]
+                else target + 0.0002 if target == TARGET_COVERAGES[-1]
+                else target + offset
+            )
+            add_injection(
+                f"injection-polar-{sequence:03d}",
+                sequence,
+                role="probe",
+                probe_id=probe_id,
+                target_coverage=target,
+                actual_coverage=actual_coverage,
+                cross_section_m2=cross_section_m2,
+                retention_volume_mL_g=_polar_retention_volume_mL_g(
+                    cross_section_m2, gamma_l_d, dn, an_star, actual_coverage
+                ),
             )
             sequence += 1
     add_injection(
@@ -334,16 +394,39 @@ def generate(output: Path = DEFAULT_OUTPUT) -> None:
         "properties_source": "synthetic-reference-properties-v1",
     }]
     calibration_rows = []
-    for probe_id, probe_name, carbon_number, cross_section_m2, _ in PROBES:
+    for probe_id, probe_name, carbon_number, cross_section_m2, gamma_l_d, _ in PROBES:
         property_rows.append({
             "probe_id": probe_id,
             "probe_name": probe_name,
             "molar_mass_g_mol": 14.0 * carbon_number + 2.0,
             "cross_section_m2": cross_section_m2,
-            "gamma_l_d_mJ_m2": "",
+            "gamma_l_d_mJ_m2": gamma_l_d,
             "donor_number_kJ_mol": "",
             "acceptor_number_kJ_mol": "",
             "carbon_number": carbon_number,
+            "properties_source": "synthetic-reference-properties-v1",
+        })
+        calibration_rows.append({
+            "calibration_id": f"calibration-{probe_id}",
+            "probe_id": probe_id,
+            "calibration_model": "linear",
+            "parameter_0": 0,
+            "parameter_1": CALIBRATION_MOL_PER_AREA,
+            "parameter_2": "",
+            "area_unit": "arbitrary_unit_min",
+            "amount_unit": "mol",
+            "calibration_source": "synthetic-calibration-v1",
+        })
+    for probe_id, probe_name, cross_section_m2, gamma_l_d, dn, an_star, _ in POLAR_PROBES:
+        property_rows.append({
+            "probe_id": probe_id,
+            "probe_name": probe_name,
+            "molar_mass_g_mol": 100.0,
+            "cross_section_m2": cross_section_m2,
+            "gamma_l_d_mJ_m2": gamma_l_d,
+            "donor_number_kJ_mol": dn,
+            "acceptor_number_kJ_mol": an_star,
+            "carbon_number": "",
             "properties_source": "synthetic-reference-properties-v1",
         })
         calibration_rows.append({
@@ -383,9 +466,9 @@ def generate(output: Path = DEFAULT_OUTPUT) -> None:
         "profile": "trace-core",
         "dataset_id": DATASET_ID,
         "created_at": "2026-01-21T12:00:00-05:00",
-        "adapter_version": "synthetic-dispersive-generator-1.0.0",
+        "adapter_version": "synthetic-surface-energy-generator-2.0.0",
         "source_fingerprint": hashlib.sha256(
-            b"synthetic-closed-form-dispersive-v1"
+            b"synthetic-closed-form-surface-energy-v2"
         ).hexdigest(),
         "files": files,
     }

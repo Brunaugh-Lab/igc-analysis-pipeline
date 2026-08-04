@@ -8,8 +8,9 @@ lab's private extraction repository.
 ## 1. Use a fixed software release
 
 Do not change software versions partway through a study. Use the exact release
-selected for the study. Release `v2026.8.4` supports corrected BET; use the next
-tagged release that explicitly includes `igc-dispersive` for dispersive work.
+selected for the study. Release `v2026.8.4` supports corrected BET; use a later
+tagged release that explicitly includes the required `igc-dispersive` or
+`igc-acid-base` command for surface-energy work.
 
 Install Python 3.10 or newer, create an isolated environment, and install the
 pinned release:
@@ -45,6 +46,15 @@ igc-dispersive --synthetic-example --output output/synthetic-dispersive
 ```
 
 The resulting profile should be reportable and close to 40.0 mJ/m².
+
+For a release that includes acid/base analysis, also run:
+
+```bash
+igc-acid-base --synthetic-example --output output/synthetic-acid-base
+```
+
+The resulting profile should be reportable, with Ka close to 0.03 and Kb close
+to 0.05. These are synthetic installation checks, not experimental validation.
 
 ## 3. Create and validate the neutral bundle
 
@@ -91,6 +101,26 @@ Treat a detector-gain warning as a calibration review requirement rather than
 an instruction to rescale the output manually. The pipeline marks that profile
 non-reportable until the review is resolved.
 
+For acid/base characterization, copy the documented opaque homologous and
+polar probe IDs from the study analysis plan and declare each explicitly:
+
+```bash
+igc-acid-base \
+  --neutral-bundle /path/to/neutral_bundle \
+  --homologous-probe-id OPAQUE_HOMOLOG_ID_1 \
+  --homologous-probe-id OPAQUE_HOMOLOG_ID_2 \
+  --homologous-probe-id OPAQUE_HOMOLOG_ID_3 \
+  --polar-probe-id OPAQUE_POLAR_ID_1 \
+  --polar-probe-id OPAQUE_POLAR_ID_2 \
+  --polar-probe-id OPAQUE_POLAR_ID_3 \
+  --output /path/to/results/acid-base
+```
+
+Do not choose probes by name or fill missing property values from memory. The
+neutral bundle must contain the study-approved, source-attributed property set.
+Ka and Kb are convention-dependent descriptors; peak maximum is a sensitivity
+result, and van Oss components are not part of this workflow.
+
 ## 5. Review before reporting
 
 Opening the final CSV is not sufficient. Review:
@@ -101,9 +131,10 @@ Opening the final CSV is not sufficient. Review:
 4. the input-bundle identity and software version; and
 5. any sensitivity analysis relevant to the result.
 
-A numerical BET fit, surface-area value, or dispersive profile must not be
-reported when the pipeline marks it non-reportable. Ask the study lead when a
-warning, extrapolation, or model choice is unclear.
+A numerical BET fit, surface-area value, dispersive profile, or acid/base
+profile must not be reported when the pipeline marks it non-reportable. Ask the
+study lead when a warning, extrapolation, probe policy, or model choice is
+unclear.
 
 ## 6. Preserve the analysis record
 

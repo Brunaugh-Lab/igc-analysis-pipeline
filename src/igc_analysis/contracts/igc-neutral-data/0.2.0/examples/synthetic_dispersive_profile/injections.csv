@@ -12,4 +12,16 @@ experiment-dispersive-001,injection-10-009,block-dispersive-001,9,2026-01-21T09:
 experiment-dispersive-001,injection-10-010,block-dispersive-001,10,2026-01-21T09:40:00-05:00,probe,0.02,1.0,detector-primary,false
 experiment-dispersive-001,injection-10-011,block-dispersive-001,11,2026-01-21T09:44:00-05:00,probe,0.03,1.0,detector-primary,false
 experiment-dispersive-001,injection-10-012,block-dispersive-001,12,2026-01-21T09:48:00-05:00,probe,0.04,1.0,detector-primary,false
-experiment-dispersive-001,dead-time-999,block-dispersive-001,13,2026-01-21T09:52:00-05:00,dead_time,,1.0,detector-primary,false
+experiment-dispersive-001,injection-polar-013,block-dispersive-001,13,2026-01-21T09:52:00-05:00,probe,0.01,1.0,detector-primary,false
+experiment-dispersive-001,injection-polar-014,block-dispersive-001,14,2026-01-21T09:56:00-05:00,probe,0.02,1.0,detector-primary,false
+experiment-dispersive-001,injection-polar-015,block-dispersive-001,15,2026-01-21T10:00:00-05:00,probe,0.03,1.0,detector-primary,false
+experiment-dispersive-001,injection-polar-016,block-dispersive-001,16,2026-01-21T10:04:00-05:00,probe,0.04,1.0,detector-primary,false
+experiment-dispersive-001,injection-polar-017,block-dispersive-001,17,2026-01-21T10:08:00-05:00,probe,0.01,1.0,detector-primary,false
+experiment-dispersive-001,injection-polar-018,block-dispersive-001,18,2026-01-21T10:12:00-05:00,probe,0.02,1.0,detector-primary,false
+experiment-dispersive-001,injection-polar-019,block-dispersive-001,19,2026-01-21T10:16:00-05:00,probe,0.03,1.0,detector-primary,false
+experiment-dispersive-001,injection-polar-020,block-dispersive-001,20,2026-01-21T10:20:00-05:00,probe,0.04,1.0,detector-primary,false
+experiment-dispersive-001,injection-polar-021,block-dispersive-001,21,2026-01-21T10:24:00-05:00,probe,0.01,1.0,detector-primary,false
+experiment-dispersive-001,injection-polar-022,block-dispersive-001,22,2026-01-21T10:28:00-05:00,probe,0.02,1.0,detector-primary,false
+experiment-dispersive-001,injection-polar-023,block-dispersive-001,23,2026-01-21T10:32:00-05:00,probe,0.03,1.0,detector-primary,false
+experiment-dispersive-001,injection-polar-024,block-dispersive-001,24,2026-01-21T10:36:00-05:00,probe,0.04,1.0,detector-primary,false
+experiment-dispersive-001,dead-time-999,block-dispersive-001,25,2026-01-21T10:40:00-05:00,dead_time,,1.0,detector-primary,false

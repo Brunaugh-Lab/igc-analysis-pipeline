@@ -47,6 +47,8 @@ class DispersiveResult:
     dead_time_peak_max_min: float
     injections: pd.DataFrame
     interpolated: pd.DataFrame
+    additional_injections: pd.DataFrame
+    additional_interpolated: pd.DataFrame
     gamma_d: pd.DataFrame
     qc: dict
     reportable: bool
@@ -128,11 +130,16 @@ def _interpolate_retention(
                 value, status = _linear_value(x, y, evaluation_target)
                 if not math.isfinite(value) or value <= 0:
                     value, status = float("nan"), "extrapolated_nonphysical"
+            carbon_number = pd.to_numeric(
+                pd.Series([first["carbon_number"]]), errors="coerce"
+            ).iloc[0]
             rows.append({
                 "retention_mode": retention_mode,
                 "probe_id": str(probe_id),
                 "probe_name": str(first["probe_name"]),
-                "carbon_number": int(first["carbon_number"]),
+                "carbon_number": (
+                    int(carbon_number) if pd.notna(carbon_number) else pd.NA
+                ),
                 "target_coverage": target,
                 "VN_mL_g": value,
                 "actual_coverage_min": float(x[0]),
@@ -150,6 +157,9 @@ def _fit_profile(interpolated: pd.DataFrame, temperature_K: float) -> pd.DataFra
         "target_coverage": "coverage",
         "VN_mL_g": "VN",
     })[["coverage", "carbon_number", "VN"]].dropna(subset=["VN"])
+    fit_input["carbon_number"] = pd.to_numeric(
+        fit_input["carbon_number"], errors="raise"
+    )
     if fit_input.empty:
         fitted = pd.DataFrame(columns=[
             "coverage", "gamma_d_mJm2", "r_squared", "slope_Jmol",
@@ -181,6 +191,7 @@ def run_dispersive_from_neutral(
     bundle_dir: str | Path | NeutralBundle,
     *,
     homologous_probe_ids: tuple[str, ...] | list[str] | None = None,
+    additional_probe_ids: tuple[str, ...] | list[str] | None = None,
     pressure_correction: bool = True,
     ambient_pressure_pa: float = 101325.0,
     extrapolate: bool = True,
@@ -287,12 +298,53 @@ def run_dispersive_from_neutral(
         if not carbon_number.is_integer():
             raise ValueError(
                 f"probe {row.probe_id!r} requires an integer carbon_number"
+        )
+
+    additional = analytes.iloc[0:0].copy()
+    if additional_probe_ids is not None:
+        additional_ids = tuple(str(value).strip() for value in additional_probe_ids)
+        if any(not value for value in additional_ids):
+            raise ValueError("additional probe IDs cannot be empty")
+        if len(set(additional_ids)) != len(additional_ids):
+            raise ValueError("additional probe IDs must be unique")
+        homologous_id_values = set(probe_defs["probe_id"].astype(str))
+        overlap = sorted(set(additional_ids) & homologous_id_values)
+        if overlap:
+            raise ValueError(
+                "additional and homologous probe selections must be disjoint: "
+                + ", ".join(overlap)
+            )
+        available_ids = set(analytes["probe_id"].astype(str))
+        missing_ids = sorted(set(additional_ids) - available_ids)
+        if missing_ids:
+            raise ValueError(
+                "selected additional probe IDs are not analytes in this bundle: "
+                + ", ".join(missing_ids)
+            )
+        additional = analytes[
+            analytes["probe_id"].astype(str).isin(additional_ids)
+        ].copy()
+        additional_defs = additional[[
+            "probe_id", "probe_name", "carbon_number", "cross_section_m2",
+            "properties_source",
+        ]].drop_duplicates()
+        if additional_defs["probe_id"].nunique() != len(additional_ids):
+            raise ValueError("each additional probe must have one property record")
+        for row in additional_defs.itertuples(index=False):
+            if not str(row.properties_source).strip():
+                raise ValueError(f"probe {row.probe_id!r} is missing properties_source")
+            _required_float(
+                pd.Series(row._asdict()), "cross_section_m2",
+                f"probe {row.probe_id!r}",
             )
 
     probe_rows = injections[injections["role"] == "probe"].copy()
     dead_rows = injections[injections["role"] == "dead_time"].copy()
-    homologous_ids = set(homologous["injection_id"].astype(str))
-    probe_rows = probe_rows[probe_rows["injection_id"].isin(homologous_ids)]
+    selected_components = pd.concat([homologous, additional], ignore_index=True)
+    selected_injection_ids = set(selected_components["injection_id"].astype(str))
+    probe_rows = probe_rows[
+        probe_rows["injection_id"].isin(selected_injection_ids)
+    ]
     if probe_rows.empty or dead_rows.empty:
         raise ValueError("dispersive analysis requires probe and dead-time injections")
     required_rows = pd.concat([probe_rows, dead_rows], ignore_index=True)
@@ -300,17 +352,18 @@ def run_dispersive_from_neutral(
         _required_float(row, "detector_gain", str(row["injection_id"]))
         for _, row in required_rows.iterrows()
     ])
-    homologous_probe_components = homologous[
-        homologous["injection_id"].isin(probe_rows["injection_id"])
+    selected_probe_defs = selected_components[["probe_id"]].drop_duplicates()
+    selected_probe_components = selected_components[
+        selected_components["injection_id"].isin(probe_rows["injection_id"])
     ]
-    coverage_counts = homologous_probe_components.groupby("probe_id")[
+    coverage_counts = selected_probe_components.groupby("probe_id")[
         "injection_id"
-    ].nunique().reindex(probe_defs["probe_id"].astype(str), fill_value=0)
+    ].nunique().reindex(selected_probe_defs["probe_id"].astype(str), fill_value=0)
     sparse_probes = coverage_counts[coverage_counts < 3]
     if not sparse_probes.empty:
         raise ValueError(
-            "dispersive analysis requires at least three calibrated coverage "
-            "points for every homologous probe; insufficient: "
+            "analysis requires at least three calibrated coverage points for "
+            "every selected probe; insufficient: "
             + ", ".join(str(value) for value in sparse_probes.index)
         )
 
@@ -352,7 +405,9 @@ def run_dispersive_from_neutral(
     probe_temperatures: list[float] = []
     clipped_probe_ids: list[str] = []
 
-    homologous_by_injection = homologous.set_index("injection_id", drop=False)
+    selected_by_injection = selected_components.set_index(
+        "injection_id", drop=False
+    )
     for row in probe_rows.itertuples(index=False):
         injection_id = str(row.injection_id)
         analyte_components = components[
@@ -364,9 +419,9 @@ def run_dispersive_from_neutral(
                 f"{injection_id}: dispersive analysis requires exactly one "
                 "analyte component"
             )
-        component = homologous_by_injection.loc[injection_id]
+        component = selected_by_injection.loc[injection_id]
         if isinstance(component, pd.DataFrame):
-            raise ValueError(f"{injection_id}: expected one homologous analyte")
+            raise ValueError(f"{injection_id}: expected one selected analyte")
         target_raw = str(row.target_coverage_fraction).strip()
         if not target_raw:
             raise ValueError(f"{injection_id}: target_coverage_fraction is required")
@@ -470,7 +525,9 @@ def run_dispersive_from_neutral(
             "sequence_index": int(row.sequence_index),
             "probe_id": str(component["probe_id"]),
             "probe_name": str(component["probe_name"]),
-            "carbon_number": int(component["carbon_number"]),
+            "carbon_number": pd.to_numeric(
+                pd.Series([component["carbon_number"]]), errors="coerce"
+            ).iloc[0],
             "target_coverage": target_coverage,
             "actual_coverage": actual_coverage,
             "amount_mol": amount_mol,
@@ -507,32 +564,48 @@ def run_dispersive_from_neutral(
     flow_relative_span = float(np.ptp(all_flows) / mean_flow)
     if temperature_span > max_temperature_span_K:
         raise ValueError(
-            "column temperature is not stable across homologous injections: "
+            "column temperature is not stable across selected injections: "
             f"span {temperature_span:.3g} K exceeds {max_temperature_span_K:.3g} K"
         )
     if flow_relative_span > max_flow_relative_span:
         raise ValueError(
-            "column flow is not stable across homologous injections: relative "
+            "column flow is not stable across selected injections: relative "
             f"span {flow_relative_span:.3g} exceeds {max_flow_relative_span:.3g}"
         )
     temperature_K = float(np.mean(probe_temperatures))
 
     targets = sorted(set(injection_table["target_coverage"].astype(float)))
-    cofm = _interpolate_retention(
+    all_cofm = _interpolate_retention(
         injection_table,
         targets,
         vn_column="VN_cofm_mL_g",
         retention_mode="cofm",
         extrapolate=extrapolate,
     )
-    peak_max = _interpolate_retention(
+    all_peak_max = _interpolate_retention(
         injection_table,
         targets,
         vn_column="VN_peak_max_mL_g",
         retention_mode="peak_max",
         extrapolate=extrapolate,
     )
+    homologous_id_values = set(probe_defs["probe_id"].astype(str))
+    cofm = all_cofm[all_cofm["probe_id"].isin(homologous_id_values)].copy()
+    peak_max = all_peak_max[
+        all_peak_max["probe_id"].isin(homologous_id_values)
+    ].copy()
     interpolated = pd.concat([cofm, peak_max], ignore_index=True)
+    additional_id_values = set(additional["probe_id"].astype(str))
+    additional_injections = injection_table[
+        injection_table["probe_id"].isin(additional_id_values)
+    ].copy()
+    additional_interpolated = pd.concat([
+        all_cofm[all_cofm["probe_id"].isin(additional_id_values)],
+        all_peak_max[all_peak_max["probe_id"].isin(additional_id_values)],
+    ], ignore_index=True)
+    injection_table = injection_table[
+        injection_table["probe_id"].isin(homologous_id_values)
+    ].copy()
 
     primary = _fit_profile(cofm, temperature_K)
     secondary = _fit_profile(peak_max, temperature_K)
@@ -636,6 +709,8 @@ def run_dispersive_from_neutral(
         dead_time_peak_max_min=t0_max,
         injections=injection_table,
         interpolated=interpolated,
+        additional_injections=additional_injections,
+        additional_interpolated=additional_interpolated,
         gamma_d=profile,
         qc=qc,
         reportable=reportable,
