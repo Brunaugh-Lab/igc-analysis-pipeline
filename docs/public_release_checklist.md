@@ -193,6 +193,35 @@ dated gate below covers the BET command added in release candidate `v2026.8.4`.
 - [x] Include the command in immutable release `v2026.8.5`, archive it in
   Zenodo, and record version DOI `10.5281/zenodo.21799047`.
 
+## Neutral batch-report candidate gate — 2026-08-05
+
+- [x] Recover only the safe orchestration requirements from the final
+  historical workflow. Source-folder scanning, filename-derived replicate
+  grouping, source coupling, auto-pooling, and study-design inference were not
+  restored.
+- [x] Implement `igc-report` with packaged `igc-analysis-batch/0.1.0`
+  manifests, one validated neutral bundle per job, allow-listed settings, and
+  the existing BET, dispersive, acid/base, and full-peak validators.
+- [x] Publish transactionally only after every job succeeds. Existing,
+  nested, or concurrently changed output locations fail closed without
+  deleting unexpected content.
+- [x] Keep reportability workflow-specific. The batch record contains no local
+  paths, does not combine scientific verdicts, and labels full-peak QC
+  `NOT_COMBINED` rather than inventing a pass.
+- [x] Complete independent Claude Code audit, remediation, re-audit, and final
+  focused check. The initial plotting-state, pooling-scope, output-safety,
+  QC-summary, numeric-domain, and test-coverage findings were resolved; the
+  final check reported no P0--P2 findings.
+- [x] Pass the complete local gate at `ee3cba6`: 352 tests, Ruff, lock and diff
+  checks, public-boundary scan, source/wheel builds, installed four-workflow
+  runs from both distributions, and persisted-output path scans.
+- [x] Obtain passing GitHub Actions run `31008560968`, including Python
+  3.10--3.14, dependency audit, lock/lint/public boundary, distribution builds,
+  and installed synthetic workflows.
+- [ ] Tag immutable release `v2026.8.6`, archive it in Zenodo, record the exact
+  version DOI after the archive exists, and verify a credential-free install
+  of the tag before directing students to batch reporting.
+
 ## Post-release verification
 
 - [x] Clone without authentication into a new temporary directory.

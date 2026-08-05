@@ -1,6 +1,6 @@
 # Source-neutral BET architecture
 
-Status: released in `v2026.8.4` and included in `v2026.8.5`; two independent
+Status: released in `v2026.8.4` and included in `v2026.8.6`; two independent
 audit passes, synthetic recovery, and governed equivalence are complete. Entry
 point: `igc-bet`.
 

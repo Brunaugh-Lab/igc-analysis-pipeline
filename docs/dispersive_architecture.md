@@ -1,6 +1,7 @@
 # Source-neutral dispersive surface-energy architecture
 
-Status: verified for release `v2026.8.5`. Entry point: `igc-dispersive`.
+Status: released in `v2026.8.5` and included in `v2026.8.6`. Entry point:
+`igc-dispersive`.
 Synthetic closed-form recovery, independent audit, and an authorized governed
 legacy-versus-neutral comparison are complete.
 

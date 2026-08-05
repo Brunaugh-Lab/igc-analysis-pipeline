@@ -14,8 +14,8 @@ The implemented end-to-end chromatography workflows are corrected BET surface
 area, Dorris--Gray dispersive surface energy, Schultz--Gutmann acid/base
 characterization, and full-peak nonlinear analysis through
 `igc-neutral-data/0.2.0`. The repository also provides a geometric surface-area
-dosing utility. A manifest-driven `igc-report` candidate on `main` coordinates
-explicit neutral analysis jobs without inferring study groups or pooling.
+dosing utility. The manifest-driven `igc-report` command coordinates explicit
+neutral analysis jobs without inferring study groups or pooling.
 
 Lower-level calculation modules for retention, peak detection, and quality
 control remain available for development and unit testing. Any former
@@ -239,9 +239,8 @@ igc-report --synthetic-example --output output/synthetic-batch
 ```
 
 See `docs/batch_reporting_architecture.md` for the manifest, allowed settings,
-transactional behavior, and study-design boundary. This command is a candidate
-on moving `main` until it appears in a later tagged release; release `v2026.8.5`
-does not include it.
+transactional behavior, and study-design boundary. It is included in
+`v2026.8.6`.
 
 ## Neutral contract
 
@@ -348,6 +347,7 @@ post-release checks are recorded in `docs/public_release_checklist.md`.
 
 If you use this software for an analysis, cite the archived version you used:
 
+- version `v2026.8.6`: Zenodo version DOI pending release archival
 - version `v2026.8.5`: <https://doi.org/10.5281/zenodo.21799047>
 - version `v2026.8.4`: <https://doi.org/10.5281/zenodo.21796032>
 - version `v2026.7.31`: <https://doi.org/10.5281/zenodo.21760977>
@@ -356,8 +356,9 @@ If you use this software for an analysis, cite the archived version you used:
 Use the version DOI in manuscripts that depend on a specific software release.
 Use the concept DOI on websites or when referring to the evolving project
 generally. Machine-readable citation metadata are provided in `CITATION.cff`.
-Release `v2026.8.5` adds the source-neutral Dorris--Gray dispersive and
-Schultz--Gutmann acid/base workflows. Release `v2026.8.4` added corrected BET.
+Release `v2026.8.6` adds explicit source-neutral batch orchestration. Release
+`v2026.8.5` added the Dorris--Gray dispersive and Schultz--Gutmann acid/base
+workflows. Release `v2026.8.4` added corrected BET.
 
 ## License
 

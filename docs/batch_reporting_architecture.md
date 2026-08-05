@@ -1,6 +1,8 @@
 # Source-neutral batch-reporting architecture
 
-Status: development candidate. Entry point: `igc-report`.
+Status: verified for release `v2026.8.6`. Entry point: `igc-report`.
+Independent audit, adversarial rollback/state-isolation tests, installed wheel
+and source-distribution runs, and the complete release gate are passed.
 
 ## Purpose and boundary
 

@@ -8,9 +8,10 @@ lab's private extraction repository.
 ## 1. Use a fixed software release
 
 Do not change software versions partway through a study. Use the exact release
-selected for the study. Release `v2026.8.5` supports corrected BET, dispersive
-surface energy, and acid/base characterization from validated neutral bundles.
-Its version DOI is <https://doi.org/10.5281/zenodo.21799047>.
+selected for the study. Release `v2026.8.6` supports corrected BET, dispersive
+surface energy, acid/base characterization, and explicit batch execution from
+validated neutral bundles. Its version DOI will be recorded in this guide after
+Zenodo archives the release.
 
 Install Python 3.10 or newer, create an isolated environment, and install the
 pinned release:
@@ -18,7 +19,7 @@ pinned release:
 ```bash
 python -m venv .venv
 source .venv/bin/activate
-python -m pip install "igc-analysis-pipeline @ git+https://github.com/Brunaugh-Lab/igc-analysis-pipeline.git@v2026.8.5"
+python -m pip install "igc-analysis-pipeline @ git+https://github.com/Brunaugh-Lab/igc-analysis-pipeline.git@v2026.8.6"
 ```
 
 Confirm the installed version:
@@ -55,6 +56,16 @@ igc-acid-base --synthetic-example --output output/synthetic-acid-base
 
 The resulting profile should be reportable, with Ka close to 0.03 and Kb close
 to 0.05. These are synthetic installation checks, not experimental validation.
+
+Finally, check the batch command:
+
+```bash
+igc-report --synthetic-example --output output/synthetic-batch
+```
+
+This runs packaged BET, dispersive, acid/base, and reduced full-peak examples
+as four explicit jobs. It checks installation and orchestration, not a study
+design or experimental reportability.
 
 ## 3. Create and validate the neutral bundle
 
@@ -121,10 +132,20 @@ neutral bundle must contain the study-approved, source-attributed property set.
 Ka and Kb are convention-dependent descriptors; peak maximum is a sensitivity
 result, and van Oss components are not part of this workflow.
 
-The manifest-driven `igc-report` command is under verification on moving
-`main`. It is not included in student release `v2026.8.5`; continue running the
-individual pinned commands above until a later release explicitly adds batch
-reporting.
+For several independent analyses, create an explicit
+`igc-analysis-batch/0.1.0` manifest and run:
+
+```bash
+igc-report \
+  --manifest /path/to/batch.json \
+  --output /path/to/results/batch-001
+```
+
+Every job accepts exactly one neutral bundle. The command does not infer
+replicates, pool acquisitions, create cross-bundle fits, or produce a combined
+scientific verdict. Review the manifest and each child result separately. See
+[`batch_reporting_architecture.md`](batch_reporting_architecture.md) for the
+manifest schema and allowed settings.
 
 ## 5. Review before reporting
 
