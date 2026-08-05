@@ -147,8 +147,11 @@ dated gate below covers the BET command added in release candidate `v2026.8.4`.
 - [x] Commit and push the candidate and obtain passing GitHub CI. Checkpoint
   `6f9dd6a` passed run `30962983337`, including Python 3.10--3.14, packaging,
   installed synthetic workflows, lint, boundary, and dependency jobs.
-- [ ] Tag immutable release `v2026.8.5`, archive it in Zenodo, and record the
-  exact version DOI after the archive exists.
+- [x] Tag immutable release `v2026.8.5`, archive it in Zenodo, and record the
+  exact version DOI. The tag points to verified commit `c45daec`; release-gate
+  CI run `30964023144` passed; Zenodo version DOI is
+  `10.5281/zenodo.21799047`; and the concept DOI remains
+  `10.5281/zenodo.21760976`.
 
 ## Acid/base candidate gate — 2026-08-04
 
@@ -187,8 +190,8 @@ dated gate below covers the BET command added in release candidate `v2026.8.4`.
 - [x] Commit and push the final candidate and obtain passing GitHub CI.
   Checkpoint `6f9dd6a` passed run `30962983337`, including the complete Python
   3.10--3.14 matrix and every release gate.
-- [ ] Include the command in immutable release `v2026.8.5`, archive it in
-  Zenodo, and record the exact version DOI after the archive exists.
+- [x] Include the command in immutable release `v2026.8.5`, archive it in
+  Zenodo, and record version DOI `10.5281/zenodo.21799047`.
 
 ## Post-release verification
 
@@ -204,3 +207,11 @@ check passed, and the documented synthetic full-peak workflow completed. An
 unauthenticated GitHub API request returned `200` for this repository and `404`
 for the private extraction repository. GitHub Actions run `30752878464` passed
 the complete Python 3.10--3.14 release matrix before the visibility change.
+
+Release `v2026.8.5` was verified on 2026-08-05 at commit `c45daec`. GitHub
+Actions run `30964023144` passed the complete Python 3.10--3.14 matrix and all
+packaging, installed-workflow, lint, boundary, and dependency jobs. A fresh
+credential-free clone of the immutable tag installed as version `2026.8.5` and
+completed the packaged BET, dispersive, and acid/base synthetic workflows with
+positive reportability. Zenodo published version DOI
+`10.5281/zenodo.21799047` under concept DOI `10.5281/zenodo.21760976`.

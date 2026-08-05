@@ -319,7 +319,7 @@ post-release checks are recorded in `docs/public_release_checklist.md`.
 
 If you use this software for an analysis, cite the archived version you used:
 
-- version `v2026.8.5`: Zenodo version DOI pending release archival
+- version `v2026.8.5`: <https://doi.org/10.5281/zenodo.21799047>
 - version `v2026.8.4`: <https://doi.org/10.5281/zenodo.21796032>
 - version `v2026.7.31`: <https://doi.org/10.5281/zenodo.21760977>
 - all-versions concept DOI: <https://doi.org/10.5281/zenodo.21760976>
