@@ -65,7 +65,7 @@ jobs:
       - name: Verify lockfile
         run: uv lock --check
 
-      - name: Enforce public-release tracked-path boundary
+      - name: Check repository contents
         run: python scripts/check_public_release_boundary.py
 
       - name: Install locked dependencies

@@ -39,10 +39,6 @@ On Windows PowerShell, activate the environment with:
 .venv\Scripts\Activate.ps1
 ```
 
-New users should begin with the [quick start](docs/student_quick_start.md),
-which covers neutral-bundle validation, analysis, QC review, record retention,
-and citation without assuming a particular computer or local folder layout.
-
 ## BET surface-area analysis
 
 Run the corrected BET workflow on one validated neutral bundle:
