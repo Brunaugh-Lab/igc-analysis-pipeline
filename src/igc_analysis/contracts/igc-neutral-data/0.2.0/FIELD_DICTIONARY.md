@@ -11,8 +11,8 @@ This dictionary describes scientific meaning. `schema.json` is authoritative for
 | `profile` | Required table/validation profile; version 0.2.0 defines `trace-core`. |
 | `dataset_id` | Immutable opaque identifier shared with `experiment.csv`. |
 | `created_at` | ISO 8601 creation timestamp with timezone. |
-| `adapter_version` | Version of the private adapter that emitted the normalized bundle. It must not describe the source access mechanism. |
-| `source_fingerprint` | Optional lowercase SHA-256 fingerprint of the governed source observations; it contains no filename or path. |
+| `adapter_version` | Version of the data-preparation software that emitted the normalized bundle. |
+| `source_fingerprint` | Optional lowercase SHA-256 fingerprint of the source observations; it contains no filename or path. |
 | `files` | Object keyed by required filename, with `row_count` and lowercase SHA-256 digest for each CSV. |
 
 ## `experiment.csv`
@@ -29,7 +29,7 @@ One row identifies the normalized acquisition experiment and its sample-level qu
 | `column_id` | Packed-column identifier in `columns.csv`. |
 | `acquisition_started_at` | ISO 8601 timestamp with timezone when available. |
 | `specific_surface_area_m2_g` | Externally supplied SSA used for coverage calculations; it is not a BET output calculated from this bundle. |
-| `surface_area_source` | Citation, governed measurement identifier, or explicit modeled-estimate designation. Required when SSA is present. |
+| `surface_area_source` | Citation, measurement identifier, or explicit modeled-estimate designation. Required when SSA is present. |
 
 ## `columns.csv`
 
@@ -43,7 +43,7 @@ One row describes the packed column and the experimental role it played.
 | `internal_diameter_m` | Internal column diameter in metres, used when carrier velocity is calculated. |
 | `packed_bed_length_m` | Packed-bed length in metres when known. |
 | `conditioning_description` | Neutral protocol identifier or non-sensitive description. |
-| `sample_batch_id` | Join key to a governed sample/process registry. |
+| `sample_batch_id` | Join key to an external sample or process registry. |
 | `density_kg_m3` | Supplied or measured density in kilograms per cubic metre. |
 | `density_basis` | `bulk_packed`, `envelope`, `skeletal`, or `modeled`; required whenever density is present. |
 
@@ -101,7 +101,7 @@ One or more rows declare the chemical components of each injection.
 | `target_amount_mol` | Declared target amount in moles, not a calibrated result. |
 | `calibration_id` | Calibration used by public analysis to convert integrated detector area to moles. |
 | `saturation_vapor_pressure_Pa` | Vapor pressure evaluated for this component at the injection temperature. |
-| `vapor_pressure_source` | Citation or governed source for the value/model. |
+| `vapor_pressure_source` | Citation or reference identifier for the value/model. |
 | `vapor_pressure_model_id` | Explicit equation, convention, or model identifier used in evaluation. |
 
 For a probe component, vapor-pressure fields are required only when a requested analysis uses $P/P_0$. All three vapor-pressure fields occur together.
@@ -136,7 +136,7 @@ Each row is one source-attributed probe-property set.
 | `donor_number_kJ_mol` | Donor-number term in kilojoules per mole under the selected convention. |
 | `acceptor_number_kJ_mol` | Acceptor-number term in kilojoules per mole under the selected convention. |
 | `carbon_number` | Carbon number used by a declared homologous-series method. |
-| `properties_source` | Citation, governed internal source, or explicit user-supplied designation. |
+| `properties_source` | Citation, reference identifier, or explicit user-supplied designation. |
 
 ## `calibration.csv`
 
@@ -162,7 +162,7 @@ where $A$ uses `area_unit` and $n$ uses `amount_unit`.
 | `parameter_2` | Model parameter $p_2$; required only for a quadratic model. |
 | `area_unit` | Exact detector-area convention consumed by the parameters. For `uV_min`, integrate a `uV` trace using minutes (or divide an area integrated in `uV_s` by 60) before applying the calibration. |
 | `amount_unit` | `mol` in version 0.2.0. |
-| `calibration_source` | Governed calibration identifier or explicit provenance. |
+| `calibration_source` | Calibration identifier or explicit provenance. |
 
 ## Scientific-readiness boundaries
 

@@ -1,9 +1,9 @@
 # Student quick start
 
-This guide is the standard Brunaugh Lab workflow for running the public IGC
-analysis pipeline. It deliberately does not document acquisition-file access.
-Lab members who need to create neutral bundles must also have access to the
-lab's private extraction repository.
+This guide covers installation, input validation, analysis, QC review, and
+citation for the IGC Analysis Pipeline. Begin with a validated
+`igc-neutral-data/0.2.0` bundle produced by a compatible data-preparation
+workflow.
 
 ## 1. Use a fixed software release
 
@@ -69,13 +69,13 @@ design or experimental reportability.
 
 ## 3. Create and validate the neutral bundle
 
-Use the private lab extraction workflow to convert the acquisition data into an
-`igc-neutral-data/0.2.0` bundle. Keep the raw acquisition data, neutral bundle,
-and derived output outside both Git repositories.
+Prepare the acquisition data as an `igc-neutral-data/0.2.0` bundle using a
+compatible export or conversion workflow. Keep source data, neutral bundles,
+and derived output outside the source repository.
 
-Before analysis, validate the bundle with the validator supplied by the private
-workflow or this repository. Do not manually edit a bundle to make validation
-pass. Resolve the source data or metadata issue instead.
+Before analysis, validate the bundle with the validator supplied by this
+repository. Do not manually edit a bundle to make validation pass. Resolve the
+source data or metadata issue instead.
 
 ## 4. Run the selected analysis
 
@@ -165,7 +165,7 @@ unclear.
 ## 6. Preserve the analysis record
 
 Keep the validated neutral bundle, complete output directory, run record, and
-study-specific interpretation together in the study's governed data location.
+study-specific interpretation together in the study's approved data location.
 Record the exact software release and version DOI in the analysis note or
 manuscript. Do not commit experimental inputs or outputs to this repository.
 

@@ -2,7 +2,9 @@
 
 Status: experimental specification. The logical model may change before 1.0.0.
 
-This directory defines the source-neutral handoff between an authorized private extraction adapter and scientific analysis software. It contains no source-format names, access mechanism, credentials, study data, or unpublished scientific results.
+This directory defines a versioned tabular interface for scientific analysis.
+It represents experimental metadata, conditions, injections, detector traces,
+calibration, and probe properties in a consistent structure.
 
 ## Contract profiles
 
@@ -35,17 +37,17 @@ Every bundle represents exactly one experiment in version 0.2.0. The separate `i
 - A bundle contains only `manifest.json` and the CSV files declared by its profile. Undeclared files or directories are rejected.
 - Literal sentinel values such as `NA`, `N/A`, `null`, `None`, `-999`, or `.` are invalid.
 - Times use seconds, temperatures use kelvin, pressures use pascals, amounts use moles, lengths use metres, and mass uses kilograms or grams exactly as stated in the field name.
-- `dataset_id`, `experiment_id`, `column_id`, `injection_id`, and related identifiers are neutral opaque identifiers. They must not encode source table names, source filenames, credentials, commercial identifiers, collaborator names, or protected study paths.
-- Identifier syntax and path-shaped strings are validated mechanically. Free-text provenance and descriptions still require human disclosure review before a bundle is shared outside its governed location.
+- `dataset_id`, `experiment_id`, `column_id`, `injection_id`, and related identifiers are neutral opaque identifiers. They must not encode filenames, personal identifiers, or machine-local paths.
+- Identifier syntax and path-shaped strings are validated mechanically. Free-text provenance and descriptions still require human review before a bundle is published or shared.
 - `sequence_index` records acquisition order. Injection rows are physically stored in contiguous increasing `sequence_index` order; order must not be reconstructed from filenames.
-- An injection role and its chemical components are separate concepts. Version 0.2.0 accepts multiple components even though public co-injection analysis is not yet required.
+- An injection role and its chemical components are separate concepts. Version 0.2.0 accepts multiple components even though co-injection analysis is not yet implemented.
 - `conditions.csv` may contain both measured and target values for the same quantity. Their `value_role` and `measurement_basis` must remain explicit.
 - `traces.csv` preserves the complete exported point order and sampling resolution. Rows are physically stored in contiguous increasing `point_index` order within each injection/channel trace. `signal_raw` is mandatory.
 - Resampling, smoothing, baseline correction, integration, peak maximum, center of mass, width, asymmetry, tailing, clipping QC, transport fitting, retention volume, coverage, isotherm calculations, and surface-energy calculations are analysis transformations. They are not substitutes for the raw trace.
 - Optional `signal_corrected` values are diagnostic only. If present, `preprocessing_method` and `preprocessing_version` are required and `signal_raw` remains mandatory.
 - Target coverage and actual coverage are not interchangeable. Actual coverage is recalculated from calibrated amount, probe cross-section, sample mass, and explicitly sourced specific surface area.
 - Temperature-dependent saturation vapor pressure is evaluated per injection component and includes its source and model identifier.
-- Property and calibration values must declare provenance. Public analysis software must not silently replace missing values with unpublished defaults.
+- Property and calibration values must declare provenance. Analysis software must not silently replace missing values.
 
 ## Files in this specification
 

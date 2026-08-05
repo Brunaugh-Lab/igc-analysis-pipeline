@@ -1,8 +1,7 @@
-"""Source-neutral Dorris--Gray dispersive surface-energy workflow.
+"""Dorris--Gray dispersive surface-energy workflow for neutral-data bundles.
 
-The workflow preserves the final validated pre-split conventions while
-removing source-specific ingestion: calibrated actual coverage, declared SSA
-and probe-property provenance, measured per-injection conditions,
+The workflow uses calibrated actual coverage, declared SSA and probe-property
+provenance, measured per-injection conditions,
 James--Martin correction, center-of-mass retention as primary, peak maximum as
 a sensitivity result, and explicit interpolation/extrapolation diagnostics.
 """

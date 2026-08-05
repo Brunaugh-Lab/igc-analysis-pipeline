@@ -2,13 +2,12 @@
 
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.21760976.svg)](https://doi.org/10.5281/zenodo.21760976)
 
-A source-neutral Python toolkit for inverse gas chromatography analysis. Public
-workflows accept documented tabular inputs and do not contain protected IGC
-acquisition-file access, acquisition-format interpretation, credentials, or
-third-party comparison adapters. A generic particle-size CSV reader remains
-for the geometric surface-area dosing utility.
+A Python toolkit for reproducible inverse gas chromatography analysis. The
+pipeline accepts versioned `igc-neutral-data/0.2.0` tabular bundles and provides
+scientific calculations, quality control, diagnostic figures, and
+machine-readable run records.
 
-## Current release boundary
+## Current capabilities
 
 The implemented end-to-end chromatography workflows are corrected BET surface
 area, Dorris--Gray dispersive surface energy, Schultz--Gutmann acid/base
@@ -18,9 +17,9 @@ dosing utility. The manifest-driven `igc-report` command coordinates explicit
 neutral analysis jobs without inferring study groups or pooling.
 
 Lower-level calculation modules for retention, peak detection, and quality
-control remain available for development and unit testing. Any former
-source-coupled command-line workflows remain removed; public workflows consume
-only the neutral contract and source-attributed scientific properties.
+control are also available for development and unit testing. Supported
+workflows use the documented neutral-data contract and explicitly declared
+scientific properties.
 
 ## Installation
 
@@ -40,13 +39,9 @@ On Windows PowerShell, activate the environment with:
 .venv\Scripts\Activate.ps1
 ```
 
-No acquisition-system runtime or source-specific library is required by this
-repository.
-
-Lab members should begin with the [student quick start](docs/student_quick_start.md),
-which connects private extraction, neutral-bundle validation, analysis, QC
-review, record retention, and citation without assuming a particular computer
-or local folder layout.
+New users should begin with the [quick start](docs/student_quick_start.md),
+which covers neutral-bundle validation, analysis, QC review, record retention,
+and citation without assuming a particular computer or local folder layout.
 
 ## BET surface-area analysis
 
@@ -58,12 +53,11 @@ igc-bet \
   --output output/bet
 ```
 
-The default calculation preserves the validated conventions from the final
-pre-split workflow: eluted peak-apex concentration, calibrated injected amount,
+The default calculation uses eluted peak-apex concentration, calibrated injected amount,
 per-injection measured column flow, direct absolute-pressure or pressure-drop
 James--Martin correction, matched dead-time convention, sensitivity analyses,
-and a strict reportability gate. The legacy loop-concentration convention is
-available only as an explicit comparison with `--concentration loop`.
+and a strict reportability gate. The loop-concentration convention is available
+as an explicit comparison with `--concentration loop`.
 
 Outputs include injection, isotherm, and linearization CSVs; vector and raster
 diagnostic figures; a strict-JSON run record; and a short interpretation README.
@@ -79,8 +73,7 @@ igc-bet \
 ```
 
 This fixture is generated from a known Type II BET isotherm and exercises a
-finite fit and positive reportability gate. It demonstrates synthetic numerical
-recovery, not equivalence on governed experimental data.
+finite fit, numerical recovery, and the positive reportability gate.
 
 See `docs/bet_architecture.md` for equations, readiness requirements, and the
 verification boundary.
@@ -120,8 +113,8 @@ igc-dispersive \
   --output output/synthetic-dispersive
 ```
 
-The fixture recovers a known 40.0 mJ/m² profile from synthetic detector traces.
-It verifies numerical recovery, not equivalence on governed experimental data.
+The fixture recovers a known 40.0 mJ/m² profile from synthetic detector traces
+and verifies the complete numerical path.
 See `docs/dispersive_architecture.md` for equations, reportability, and the
 interpretation boundary.
 
@@ -142,11 +135,11 @@ igc-acid-base \
   --output output/acid-base
 ```
 
-The workflow never infers probe roles or properties from chemical names. Every
+The workflow does not infer probe roles or properties from chemical names. Every
 selected probe requires source-attributed cross-section and dispersive liquid
 surface tension; polar probes additionally require declared donor and modified
 acceptor numbers. Center-of-mass retention is primary, while peak maximum is
-retained as a sensitivity calculation matching the historical convention.
+retained as a sensitivity calculation.
 At least three polar probes are required so Ka and Kb come from a regression,
 not a two-point deterministic solve.
 
@@ -159,10 +152,10 @@ igc-acid-base \
 ```
 
 The synthetic fixture recovers known Ka and Kb values from detector traces.
-Van Oss analysis is intentionally not exposed: its additional liquid-component
-properties are not yet represented with explicit provenance in the neutral
-contract. See `docs/acid_base_architecture.md` for equations, reportability,
-and interpretation limits.
+Van Oss analysis is not currently implemented because its additional
+liquid-component properties are not represented in the neutral contract. See
+`docs/acid_base_architecture.md` for equations, reportability, and
+interpretation limits.
 
 ## Full-peak analysis
 
@@ -199,7 +192,7 @@ See `docs/full_peak_architecture.md` for the model and
 ### Runnable synthetic example
 
 From a source checkout, the bundled synthetic fixture exercises the complete
-command without using experimental data:
+command:
 
 ```bash
 igc-full-peak \
@@ -295,8 +288,7 @@ Use each command's `--help` output for its current options.
   or specific surface area. Those outputs are gated by model structure and
   parameter identifiability.
 - Probe properties and calibration parameters must retain their declared
-  provenance. Public analysis does not silently substitute source-specific
-  defaults.
+  provenance. The pipeline does not silently substitute missing values.
 
 ## Development
 
@@ -306,13 +298,11 @@ ruff check .
 python -m build
 ```
 
-Tests use synthetic inputs unless a governed integration test is explicitly
-enabled outside this repository. Real experimental bundles must not be added to
-Git.
+Tests use bundled synthetic inputs. Keep study data and generated results
+outside the source repository.
 
-Before contributing, read `CONTRIBUTING.md`. The repository includes a CI
-boundary check that rejects tracked files under the reserved local-data paths;
-`.gitignore` is not the only protection against accidental recommitment.
+Before contributing, read `CONTRIBUTING.md`. CI checks repository layout,
+packaging, tests, code quality, and dependency health on every pull request.
 
 GitHub Actions verifies the locked environment, runs the test suite on Python
 3.10 through 3.14, enforces release-blocking lint checks, builds and installs
@@ -333,15 +323,12 @@ tests/               Synthetic and calculation-level tests
 docs/                Architecture and contract documentation
 ```
 
-## Release status
+## Release quality
 
-The repository owner approved release under the MIT License and public
-visibility after the content, history, package, and reproducibility checks in
-the release checklist pass.
-
-Scientific-reference provenance remains an ongoing documentation task rather
-than permission to overinterpret results. The completed release evidence and
-post-release checks are recorded in `docs/public_release_checklist.md`.
+Versioned releases are archived through Zenodo. Each release is tested across
+Python 3.10 through 3.14, built as both wheel and source distributions, installed
+in isolated environments, and exercised with packaged synthetic workflows. See
+[`docs/release_quality.md`](docs/release_quality.md) for the release criteria.
 
 ## Citation
 

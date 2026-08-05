@@ -1,9 +1,8 @@
-"""Source-neutral, coverage-resolved Gutmann acid/base workflow.
+"""Coverage-resolved Gutmann acid/base workflow for neutral-data bundles.
 
 Probe roles and properties are declared by the caller and the neutral bundle.
-No probe identity, property value, or source-format convention is inferred from
-a chemical name.  Center-of-mass retention is primary; peak maximum preserves
-the historical calculation as a sensitivity result.
+No probe identity or property value is inferred from a chemical name.
+Center-of-mass retention is primary; peak maximum is a sensitivity result.
 """
 
 from __future__ import annotations

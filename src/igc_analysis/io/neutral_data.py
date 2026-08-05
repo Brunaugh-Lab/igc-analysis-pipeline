@@ -1,9 +1,4 @@
-"""Read validated source-neutral IGC experiment bundles.
-
-This module is the public ingestion boundary. It knows only the versioned
-``igc-neutral-data`` contract and contains no protected source-format names,
-credentials, paths, or extraction logic.
-"""
+"""Read validated IGC experiment bundles using the neutral-data contract."""
 
 from __future__ import annotations
 

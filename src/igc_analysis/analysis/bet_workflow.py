@@ -1,10 +1,8 @@
-"""Source-neutral end-to-end BET workflow.
+"""End-to-end BET workflow for validated neutral-data bundles.
 
-This adapter maps a validated ``igc-neutral-data/0.2.0`` bundle onto the
-corrected BET calculation core. It intentionally preserves the validated
-conventions from the final pre-split workflow: eluted peak-apex concentration,
-per-injection measured column flow, James--Martin pressure correction, matched
-dead-time conventions, sensitivity checks, and strict reportability gating.
+The calculation uses eluted peak-apex concentration, per-injection measured
+column flow, James--Martin pressure correction, matched dead-time conventions,
+sensitivity checks, and strict reportability gating.
 """
 
 from __future__ import annotations
