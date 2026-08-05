@@ -7,6 +7,7 @@ import json
 import shutil
 from pathlib import Path
 
+import numpy as np
 import pandas as pd
 import pytest
 
@@ -99,6 +100,155 @@ def test_missing_polar_property_or_source_is_rejected(
         run_acid_base_from_neutral(
             copied, homologous_probe_ids=HOMOLOGS, polar_probe_ids=POLAR
         )
+
+
+def test_mislabeled_j_per_m2_liquid_tension_is_rejected(
+    synthetic_bundle: Path, tmp_path: Path,
+):
+    copied = tmp_path / "bundle"
+    shutil.copytree(synthetic_bundle, copied)
+    properties = pd.read_csv(copied / "probe_properties.csv", keep_default_na=False)
+    properties.loc[
+        properties["probe_id"] == POLAR[0], "gamma_l_d_mJ_m2"
+    ] = "0.018"
+    _refresh(copied, "probe_properties.csv", properties)
+    with pytest.raises(ValueError, match="unit/plausibility gate"):
+        run_acid_base_from_neutral(
+            copied, homologous_probe_ids=HOMOLOGS, polar_probe_ids=POLAR
+        )
+
+
+def test_nonpositive_polar_retention_is_retained_and_nonreportable(
+    synthetic_bundle: Path, tmp_path: Path,
+):
+    copied = tmp_path / "bundle"
+    shutil.copytree(synthetic_bundle, copied)
+    traces = pd.read_csv(copied / "traces.csv", keep_default_na=False)
+    injections = pd.read_csv(copied / "injections.csv", keep_default_na=False)
+    affected = injections.loc[
+        injections["injection_id"].str.startswith("injection-polar-"),
+        "injection_id",
+    ].iloc[:4]
+    for injection_id in affected:
+        mask = traces["injection_id"] == injection_id
+        time_s = traces.loc[mask, "time_s"].to_numpy(dtype=float)
+        traces.loc[mask, "signal_raw"] = np.exp(
+            -0.5 * ((time_s - 6.0) / 1.0) ** 2
+        )
+    _refresh(copied, "traces.csv", traces)
+    result = run_acid_base_from_neutral(
+        copied, homologous_probe_ids=HOMOLOGS, polar_probe_ids=POLAR
+    )
+    assert result.reportable is False
+    assert any(
+        flag["check"] == "positive_net_retention"
+        and flag["severity"] == "critical"
+        for flag in result.qc["flags"]
+    )
+
+
+def test_all_nonpositive_polar_retention_returns_structured_failure(
+    synthetic_bundle: Path, tmp_path: Path,
+):
+    copied = tmp_path / "bundle"
+    shutil.copytree(synthetic_bundle, copied)
+    traces = pd.read_csv(copied / "traces.csv", keep_default_na=False)
+    injections = pd.read_csv(copied / "injections.csv", keep_default_na=False)
+    affected = injections.loc[
+        injections["injection_id"].str.startswith("injection-polar-"),
+        "injection_id",
+    ]
+    for injection_id in affected:
+        mask = traces["injection_id"] == injection_id
+        time_s = traces.loc[mask, "time_s"].to_numpy(dtype=float)
+        traces.loc[mask, "signal_raw"] = np.exp(
+            -0.5 * ((time_s - 6.0) / 1.0) ** 2
+        )
+    _refresh(copied, "traces.csv", traces)
+    result = run_acid_base_from_neutral(
+        copied, homologous_probe_ids=HOMOLOGS, polar_probe_ids=POLAR
+    )
+    assert result.delta_g_sp.empty
+    assert tuple(result.delta_g_sp.columns)
+    assert result.reportable is False
+    assert result.qc["pass"] is False
+
+
+def test_coverage_extrapolation_is_nonreportable(
+    synthetic_bundle: Path, tmp_path: Path,
+):
+    copied = tmp_path / "bundle"
+    shutil.copytree(synthetic_bundle, copied)
+    injections = pd.read_csv(copied / "injections.csv", keep_default_na=False)
+    injections.loc[
+        injections["target_coverage_fraction"] == "0.04",
+        "target_coverage_fraction",
+    ] = "0.05"
+    _refresh(copied, "injections.csv", injections)
+    result = run_acid_base_from_neutral(
+        copied, homologous_probe_ids=HOMOLOGS, polar_probe_ids=POLAR
+    )
+    assert result.reportable is False
+    assert any(flag["check"] == "coverage_mapping" for flag in result.qc["flags"])
+
+
+def test_detector_gain_variation_is_nonreportable(
+    synthetic_bundle: Path, tmp_path: Path,
+):
+    copied = tmp_path / "bundle"
+    shutil.copytree(synthetic_bundle, copied)
+    injections = pd.read_csv(copied / "injections.csv", keep_default_na=False)
+    injections.loc[injections["role"] == "probe", "detector_gain"] = 2.0
+    injections.loc[injections.index[-2], "detector_gain"] = 1.0
+    _refresh(copied, "injections.csv", injections)
+    result = run_acid_base_from_neutral(
+        copied, homologous_probe_ids=HOMOLOGS, polar_probe_ids=POLAR
+    )
+    assert result.reportable is False
+    assert any(
+        flag["check"] == "detector_gain_variation"
+        for flag in result.qc["flags"]
+    )
+
+
+def test_negative_delta_g_sp_is_visible_as_warning(
+    synthetic_bundle: Path, tmp_path: Path,
+):
+    copied = tmp_path / "bundle"
+    shutil.copytree(synthetic_bundle, copied)
+    properties = pd.read_csv(copied / "probe_properties.csv", keep_default_na=False)
+    properties.loc[
+        properties["probe_id"] == POLAR[0], "gamma_l_d_mJ_m2"
+    ] = "100.0"
+    _refresh(copied, "probe_properties.csv", properties)
+    result = run_acid_base_from_neutral(
+        copied, homologous_probe_ids=HOMOLOGS, polar_probe_ids=POLAR
+    )
+    assert any(
+        flag["check"] == "negative_delta_g_sp"
+        for flag in result.qc["flags"]
+    )
+
+
+def test_poor_schultz_reference_line_is_not_reportable(
+    synthetic_bundle: Path, tmp_path: Path,
+):
+    copied = tmp_path / "bundle"
+    shutil.copytree(synthetic_bundle, copied)
+    properties = pd.read_csv(copied / "probe_properties.csv", keep_default_na=False)
+    properties.loc[
+        properties["probe_id"] == HOMOLOGS[1], "gamma_l_d_mJ_m2"
+    ] = "100.0"
+    _refresh(copied, "probe_properties.csv", properties)
+    result = run_acid_base_from_neutral(
+        copied, homologous_probe_ids=HOMOLOGS, polar_probe_ids=POLAR
+    )
+    assert result.reportable is False
+    assert any(
+        flag["check"] in {"schultz_r_squared", "schultz_gamma_d_bounds"}
+        and flag["severity"] == "critical"
+        for flag in result.qc["flags"]
+    )
 
 
 def test_cli_writes_auditable_atomic_outputs(

@@ -18,11 +18,24 @@ from scipy import stats
 
 from igc_analysis.analysis.acid_base import gutmann_ka_kb
 from igc_analysis.analysis.dispersive_workflow import (
+    GAMMA_D_CRITICAL_BOUNDS_MJ_M2,
+    GAMMA_D_WARNING_BOUNDS_MJ_M2,
     DispersiveResult,
     run_dispersive_from_neutral,
 )
 from igc_analysis.constants import N_AVOGADRO, R_GAS
 from igc_analysis.io.neutral_data import NeutralBundle, read_neutral_bundle
+
+
+GAMMA_L_D_PLAUSIBLE_BOUNDS_MJ_M2 = (1.0, 100.0)
+SCHULTZ_R2_WARNING = 0.98
+SCHULTZ_R2_CRITICAL = 0.95
+DELTA_G_COLUMNS = (
+    "retention_mode", "coverage", "probe", "probe_id", "probe_name",
+    "VN_mL_g", "RT_ln_VN_Jmol", "x_schultz", "alkane_predicted_Jmol",
+    "delta_g_sp_Jmol", "delta_g_sp_kJmol", "dn", "an_star",
+    "properties_source",
+)
 
 
 @dataclass(frozen=True)
@@ -90,7 +103,16 @@ def _property_records(
         if not str(row["properties_source"]).strip():
             raise ValueError(f"probe {probe_id!r}: properties_source is required")
         _finite_positive(row, "cross_section_m2", probe_id)
-        _finite_positive(row, "gamma_l_d_mJ_m2", probe_id)
+        gamma_l_d = _finite_positive(row, "gamma_l_d_mJ_m2", probe_id)
+        if not (
+            GAMMA_L_D_PLAUSIBLE_BOUNDS_MJ_M2[0]
+            <= gamma_l_d
+            <= GAMMA_L_D_PLAUSIBLE_BOUNDS_MJ_M2[1]
+        ):
+            raise ValueError(
+                f"probe {probe_id!r}: gamma_l_d_mJ_m2={gamma_l_d:g} is outside "
+                "the 1 to 100 mJ/m2 unit/plausibility gate"
+            )
     for probe_id in polar_ids:
         row = selected.loc[probe_id]
         _finite_nonnegative(row, "donor_number_kJ_mol", probe_id)
@@ -192,7 +214,11 @@ def _mode_profile(
             "n_homologs": len(points),
             "gamma_d_schultz_mJm2": gamma_d,
         })
-    return pd.DataFrame(profile_rows), pd.DataFrame(dg_rows), pd.DataFrame(line_rows)
+    return (
+        pd.DataFrame(profile_rows),
+        pd.DataFrame(dg_rows, columns=DELTA_G_COLUMNS),
+        pd.DataFrame(line_rows),
+    )
 
 
 def _quality(
@@ -200,6 +226,7 @@ def _quality(
     delta_g_sp: pd.DataFrame,
     dispersive: DispersiveResult,
     interpolated: pd.DataFrame,
+    injections: pd.DataFrame,
 ) -> tuple[dict, bool]:
     flags = [dict(flag) for flag in dispersive.qc["flags"]]
     for row in primary.itertuples(index=False):
@@ -207,6 +234,46 @@ def _quality(
             flags.append({"check": "schultz_probe_count", "severity": "critical",
                           "coverage": row.coverage,
                           "message": "fewer than three homologs define the reference line"})
+        if math.isfinite(row.schultz_r_squared):
+            if row.schultz_r_squared < SCHULTZ_R2_CRITICAL:
+                flags.append({
+                    "check": "schultz_r_squared", "severity": "critical",
+                    "coverage": row.coverage,
+                    "message": (
+                        f"Schultz reference R2={row.schultz_r_squared:.3f} is "
+                        f"below {SCHULTZ_R2_CRITICAL:.2f}"
+                    ),
+                })
+            elif row.schultz_r_squared < SCHULTZ_R2_WARNING:
+                flags.append({
+                    "check": "schultz_r_squared", "severity": "warning",
+                    "coverage": row.coverage,
+                    "message": (
+                        f"Schultz reference R2={row.schultz_r_squared:.3f} is "
+                        f"below {SCHULTZ_R2_WARNING:.2f}"
+                    ),
+                })
+        if math.isfinite(row.gamma_d_schultz_mJm2):
+            if not (
+                GAMMA_D_CRITICAL_BOUNDS_MJ_M2[0]
+                <= row.gamma_d_schultz_mJm2
+                <= GAMMA_D_CRITICAL_BOUNDS_MJ_M2[1]
+            ):
+                flags.append({
+                    "check": "schultz_gamma_d_bounds", "severity": "critical",
+                    "coverage": row.coverage,
+                    "message": "Schultz-derived gamma_d is outside critical bounds",
+                })
+            elif not (
+                GAMMA_D_WARNING_BOUNDS_MJ_M2[0]
+                <= row.gamma_d_schultz_mJm2
+                <= GAMMA_D_WARNING_BOUNDS_MJ_M2[1]
+            ):
+                flags.append({
+                    "check": "schultz_gamma_d_bounds", "severity": "warning",
+                    "coverage": row.coverage,
+                    "message": "Schultz-derived gamma_d is outside expected bounds",
+                })
         if row.n_polar_probes < 3 or row.fit_method != "regression":
             flags.append({"check": "gutmann_probe_count", "severity": "critical",
                           "coverage": row.coverage,
@@ -235,6 +302,22 @@ def _quality(
     outside = interpolated[
         interpolated["interpolation_status"] != "interpolated"
     ]
+    invalid_injections = int(
+        (
+            ~np.isfinite(injections["VN_cofm_mL_g"])
+            | ~np.isfinite(injections["VN_peak_max_mL_g"])
+        ).sum()
+    )
+    if invalid_injections:
+        flags.append({
+            "check": "positive_net_retention",
+            "severity": "critical",
+            "coverage": None,
+            "message": (
+                f"{invalid_injections} selected-probe injection(s) have "
+                "nonpositive net retention"
+            ),
+        })
     if not outside.empty:
         flags.append({"check": "coverage_mapping", "severity": "warning",
                       "coverage": None,
@@ -315,7 +398,12 @@ def run_acid_base_from_neutral(
     delta_g_sp = pd.concat(delta_tables, ignore_index=True)
     schultz_lines = pd.concat(line_tables, ignore_index=True)
     primary = profile[profile["retention_mode"] == "cofm"]
-    qc, reportable = _quality(primary, delta_g_sp, dispersive, interpolated)
+    all_injections = pd.concat([
+        dispersive.injections, dispersive.additional_injections
+    ], ignore_index=True).sort_values("sequence_index")
+    qc, reportable = _quality(
+        primary, delta_g_sp, dispersive, interpolated, all_injections
+    )
     return AcidBaseResult(
         dataset_id=bundle.dataset_id,
         sample_id=dispersive.sample_id,
@@ -323,9 +411,7 @@ def run_acid_base_from_neutral(
         profile=profile,
         delta_g_sp=delta_g_sp,
         schultz_lines=schultz_lines,
-        injections=pd.concat([
-            dispersive.injections, dispersive.additional_injections
-        ], ignore_index=True).sort_values("sequence_index"),
+        injections=all_injections,
         interpolated=interpolated,
         qc=qc,
         reportable=reportable,

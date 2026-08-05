@@ -148,6 +148,44 @@ dated gate below covers the BET command added in release candidate `v2026.8.4`.
   immutable release, archive it in Zenodo, and update the student guide from
   "next tagged release" to the exact version and DOI.
 
+## Acid/base candidate gate — 2026-08-04
+
+- [x] Reconstruct the final historical Schultz--Gutmann path: all selected
+  probes mapped from calibrated actual coverage to a common target grid,
+  Schultz reference lines at each coverage, polar-probe $\Delta G_{sp}$, and
+  regression-derived Ka/Kb. Van Oss was historically opt-in and remains
+  outside this source-neutral milestone.
+- [x] Implement `igc-acid-base` with explicit opaque homologous and polar probe
+  selections, source-attributed property requirements, CoM retention as
+  primary, peak maximum as the historical sensitivity calculation,
+  transactional outputs, strict JSON, figures, and interpretation boundaries.
+- [x] Add a deterministic detector-trace fixture that recovers Ka=0.03 and
+  Kb=0.05 with at least three probes and nontrivial CoM/peak-maximum
+  sensitivity. The installed wheel completed the fixture with positive
+  reportability.
+- [x] Complete an authorized governed comparison outside Git. With identical
+  interpolated values and the identical historical property set, the new and
+  historical calculation layers matched Ka, Kb, and R² exactly. No governed
+  input, detailed result, or comparison artifact was retained in this
+  repository.
+- [x] Add and test a public input-unit/plausibility gate for declared liquid
+  dispersive tensions. The public consumer rejects inconsistent values rather
+  than silently converting them.
+- [x] Resolve every P0--P2 finding from an independent public-repository audit.
+  Claude Code identified an empty-result crash, misleading invalid-retention
+  count, missing Schultz-line QC, undeclared direct NumPy dependency, and
+  missing failure-path tests. All were remediated, and the final narrow audit
+  reported no P0--P2 findings.
+- [x] Re-run the complete suite, lint, lock, boundary, artifact, installed-wheel,
+  and dependency gates after audit remediation. On 2026-08-04, 327 tests
+  passed; Ruff, lock integrity, diff checks, and the public content boundary
+  passed; fresh wheel and source distributions built; installed dispersive and
+  acid/base synthetic workflows were reportable; and the locked runtime audit
+  found no known vulnerabilities.
+- [ ] Commit and push the final candidate, obtain passing GitHub CI, and defer
+  the next immutable release/Zenodo archive until the broader dispersive and
+  acid/base rollout is ready to tag.
+
 ## Post-release verification
 
 - [x] Clone without authentication into a new temporary directory.

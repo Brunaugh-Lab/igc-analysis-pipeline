@@ -90,10 +90,46 @@ def _interpolate_retention(
     vn_column: str,
     retention_mode: str,
     extrapolate: bool,
+    allow_invalid_retention: bool = False,
 ) -> pd.DataFrame:
     rows: list[dict] = []
     for probe_id, group in injections.groupby("probe_id", sort=False):
         g = group.sort_values("actual_coverage").copy()
+        invalid_retention_count = 0
+        if allow_invalid_retention:
+            valid = (
+                np.isfinite(pd.to_numeric(g["actual_coverage"], errors="coerce"))
+                & np.isfinite(pd.to_numeric(g[vn_column], errors="coerce"))
+                & (pd.to_numeric(g["actual_coverage"], errors="coerce") > 0)
+                & (pd.to_numeric(g[vn_column], errors="coerce") > 0)
+            )
+            invalid_retention_count = int((~valid).sum())
+            g = g[valid].copy()
+        if len(g) < 2:
+            first = group.iloc[0]
+            carbon_number = pd.to_numeric(
+                pd.Series([first["carbon_number"]]), errors="coerce"
+            ).iloc[0]
+            for target in targets:
+                rows.append({
+                    "retention_mode": retention_mode,
+                    "probe_id": str(probe_id),
+                    "probe_name": str(first["probe_name"]),
+                    "carbon_number": (
+                        int(carbon_number) if pd.notna(carbon_number) else pd.NA
+                    ),
+                    "target_coverage": target,
+                    "VN_mL_g": float("nan"),
+                    "actual_coverage_min": (
+                        float(g["actual_coverage"].min()) if len(g) else float("nan")
+                    ),
+                    "actual_coverage_max": (
+                        float(g["actual_coverage"].max()) if len(g) else float("nan")
+                    ),
+                    "interpolation_status": "insufficient_positive_retention",
+                    "invalid_retention_count": invalid_retention_count,
+                })
+            continue
         x = g["actual_coverage"].to_numpy(dtype=float)
         y = g[vn_column].to_numpy(dtype=float)
         if len(x) < 2:
@@ -145,6 +181,7 @@ def _interpolate_retention(
                 "actual_coverage_min": float(x[0]),
                 "actual_coverage_max": float(x[-1]),
                 "interpolation_status": status,
+                "invalid_retention_count": invalid_retention_count,
             })
     return pd.DataFrame(rows)
 
@@ -503,10 +540,14 @@ def run_dispersive_from_neutral(
         )
         net_max = float(peak["peak_max_time"]) - t0_max
         net_cofm = float(peak["peak_cofm"]) - t0_cofm
-        if net_max <= 0 or net_cofm <= 0:
-            raise ValueError(f"{injection_id}: net retention time must be positive")
-        vn_max = net_max * flow_column_mL_min * pressure.factor / mass_g
-        vn_cofm = net_cofm * flow_column_mL_min * pressure.factor / mass_g
+        vn_max = (
+            net_max * flow_column_mL_min * pressure.factor / mass_g
+            if net_max > 0 else float("nan")
+        )
+        vn_cofm = (
+            net_cofm * flow_column_mL_min * pressure.factor / mass_g
+            if net_cofm > 0 else float("nan")
+        )
 
         declared_clip = str(row.clipping_observed).casefold() == "true"
         clipped = declared_clip or _is_clipped(signal_raw)
@@ -574,38 +615,46 @@ def run_dispersive_from_neutral(
         )
     temperature_K = float(np.mean(probe_temperatures))
 
-    targets = sorted(set(injection_table["target_coverage"].astype(float)))
-    all_cofm = _interpolate_retention(
-        injection_table,
+    homologous_id_values = set(probe_defs["probe_id"].astype(str))
+    additional_id_values = set(additional["probe_id"].astype(str))
+    homologous_injections = injection_table[
+        injection_table["probe_id"].isin(homologous_id_values)
+    ].copy()
+    additional_injections = injection_table[
+        injection_table["probe_id"].isin(additional_id_values)
+    ].copy()
+    targets = sorted(set(homologous_injections["target_coverage"].astype(float)))
+    cofm = _interpolate_retention(
+        homologous_injections,
         targets,
         vn_column="VN_cofm_mL_g",
         retention_mode="cofm",
         extrapolate=extrapolate,
     )
-    all_peak_max = _interpolate_retention(
-        injection_table,
+    peak_max = _interpolate_retention(
+        homologous_injections,
         targets,
         vn_column="VN_peak_max_mL_g",
         retention_mode="peak_max",
         extrapolate=extrapolate,
     )
-    homologous_id_values = set(probe_defs["probe_id"].astype(str))
-    cofm = all_cofm[all_cofm["probe_id"].isin(homologous_id_values)].copy()
-    peak_max = all_peak_max[
-        all_peak_max["probe_id"].isin(homologous_id_values)
-    ].copy()
     interpolated = pd.concat([cofm, peak_max], ignore_index=True)
-    additional_id_values = set(additional["probe_id"].astype(str))
-    additional_injections = injection_table[
-        injection_table["probe_id"].isin(additional_id_values)
-    ].copy()
-    additional_interpolated = pd.concat([
-        all_cofm[all_cofm["probe_id"].isin(additional_id_values)],
-        all_peak_max[all_peak_max["probe_id"].isin(additional_id_values)],
-    ], ignore_index=True)
-    injection_table = injection_table[
-        injection_table["probe_id"].isin(homologous_id_values)
-    ].copy()
+    if additional_injections.empty:
+        additional_interpolated = pd.DataFrame(columns=interpolated.columns)
+    else:
+        additional_interpolated = pd.concat([
+            _interpolate_retention(
+                additional_injections, targets,
+                vn_column="VN_cofm_mL_g", retention_mode="cofm",
+                extrapolate=extrapolate, allow_invalid_retention=True,
+            ),
+            _interpolate_retention(
+                additional_injections, targets,
+                vn_column="VN_peak_max_mL_g", retention_mode="peak_max",
+                extrapolate=extrapolate, allow_invalid_retention=True,
+            ),
+        ], ignore_index=True)
+    injection_table = homologous_injections
 
     primary = _fit_profile(cofm, temperature_K)
     secondary = _fit_profile(peak_max, temperature_K)

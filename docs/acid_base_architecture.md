@@ -52,12 +52,23 @@ In addition to structural contract validity, the workflow requires:
 - measured per-injection flow and column temperature; and
 - the pressure measurements required by the selected correction mode.
 
+The consumer applies a 1--100 mJ/m² unit/plausibility gate to declared liquid
+dispersive tensions. It does not silently convert values that appear to have
+been supplied in J/m².
+
 A profile is reportable only when there are no critical QC flags, every
 coverage has a regression-derived finite Ka, Kb, and R² from at least three
 polar probes, every selected-probe value is interpolated within its measured
 coverage range, and the required injections use one detector gain. Negative
 $\Delta G_{sp}$, negative Ka/Kb, or R² below 0.5 remain visible as review
-warnings; R² below 0.3 is critical.
+warnings; R² below 0.3 is critical. The upstream Schultz line is independently
+gated at R² 0.98 (warning) and 0.95 (critical), and its implied dispersive
+surface energy uses the same expected and critical bounds as `igc-dispersive`.
+
+Nonpositive net retention is retained as an undefined probe/mode value rather
+than converted to a positive quantity. Insufficient positive observations are
+a critical QC condition, so other coverages remain inspectable but the profile
+is non-reportable.
 
 ## Interpretation boundary
 
