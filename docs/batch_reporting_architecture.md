@@ -1,0 +1,113 @@
+# Source-neutral batch-reporting architecture
+
+Status: development candidate. Entry point: `igc-report`.
+
+## Purpose and boundary
+
+`igc-report` runs an explicit list of released chromatography workflows and
+collects their existing outputs into one transactional directory. It accepts
+only validated `igc-neutral-data/0.2.0` bundles. It does not read acquisition
+files, discover inputs by scanning source folders, infer sample identity from
+filenames, or reproduce the source-coupled report generator from the former
+combined repository.
+
+The batch manifest is an execution plan, not a study-design model. Bundle and
+job IDs are opaque bookkeeping identifiers. The orchestrator does not infer
+replicates, treatment groups, before/after relationships, statistical units,
+or permission to pool acquisitions. Those relationships require a separately
+reviewed study design keyed by immutable neutral `dataset_id` values.
+
+## Manifest 0.1.0
+
+The machine-readable schema is packaged at
+`contracts/igc-analysis-batch/0.1.0/schema.json`. Relative bundle paths are
+resolved from the manifest directory, allowing a governed analysis folder to
+move without rewriting every entry.
+
+```json
+{
+  "schema_version": "igc-analysis-batch/0.1.0",
+  "batch_id": "batch-001",
+  "bundles": [
+    {"bundle_id": "bundle-001", "path": "neutral/bundle-001"}
+  ],
+  "jobs": [
+    {
+      "job_id": "bet-001",
+      "analysis": "bet",
+      "bundle_ids": ["bundle-001"],
+      "settings": {
+        "retention": "peak_max",
+        "concentration": "eluted"
+      }
+    }
+  ]
+}
+```
+
+Supported analysis values are `bet`, `dispersive`, `acid_base`, and
+`full_peak`. BET, dispersive, and acid/base jobs require exactly one bundle.
+Full-peak jobs may explicitly name multiple independently characterized
+bundles; their manifest bundle IDs become the neutral block labels supplied to
+the existing full-peak command.
+
+Every setting is allow-listed and forwarded to the corresponding public
+command. Important keys include:
+
+- BET: `probe`, `retention`, `concentration`, `origin`, `p0_min`, `p0_max`,
+  `ambient_pressure_pa`, `pressure_correction`, and `sensitivity`;
+- dispersive: `homologous_probe_ids`, `ambient_pressure_pa`,
+  `pressure_correction`, `extrapolate`, `max_temperature_span_k`, and
+  `max_flow_relative_span`;
+- acid/base: the dispersive settings plus at least three explicit
+  `polar_probe_ids`; and
+- full peak: `probe`, `transport_mode`, `models`, `n_cells`, `n_starts`,
+  `lodo`, `lodo_models`, and `cross_section_m2`.
+
+Unknown keys, duplicate IDs, duplicate dataset aliases, missing bundle
+references, unsupported analyses, and invalid setting types fail closed.
+
+## Execution and outputs
+
+All bundles are structurally validated before analysis begins. Jobs then call
+the existing public command paths, so batch execution cannot bypass their
+scientific readiness checks, source-attributed property requirements, QC, or
+reportability rules.
+
+The requested output path must not exist. Every job runs under a temporary
+staging directory; any failed job removes the entire staged batch. A successful
+run atomically creates:
+
+```text
+batch-output/
+├── README.md
+├── batch_run.json
+├── batch_summary.csv
+├── bet-001/
+├── dispersive-001/
+├── acid-base-001/
+└── full-peak-001/
+```
+
+Each job directory is the unchanged output of its underlying command. The
+batch run record retains schema/package versions, dataset IDs, neutral-manifest
+digests, job-to-bundle mappings, job-relative result locations, and the
+workflow-specific reportability scope. It omits local input paths.
+
+There is deliberately no batch-level scientific verdict. A BET SSA,
+dispersive profile, acid/base profile, and full-peak recovered SSA have
+different reportability meanings. The summary exposes each verdict and scope
+without combining them.
+
+## Synthetic verification
+
+The installed command provides a path-free smoke test using only packaged
+synthetic bundles:
+
+```bash
+igc-report --synthetic-example --output output/synthetic-batch
+```
+
+This runs BET, dispersive, acid/base, and a reduced full-peak model comparison.
+It verifies installation and orchestration, not experimental reportability or
+a study design.

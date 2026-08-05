@@ -102,6 +102,7 @@ jobs:
           uv run --isolated --no-project --with dist/*.whl igc-dispersive --help
           uv run --isolated --no-project --with dist/*.whl igc-acid-base --help
           uv run --isolated --no-project --with dist/*.whl igc-full-peak --help
+          uv run --isolated --no-project --with dist/*.whl igc-report --help
           uv run --isolated --no-project --with dist/*.whl igc-ssa-dose --help
           uv run --isolated --no-project --with dist/*.whl python -c \
             "import importlib.metadata, igc_analysis; assert igc_analysis.__version__ == importlib.metadata.version('igc-analysis-pipeline')"
@@ -139,12 +140,20 @@ jobs:
           test -s wheel-acid-base-smoke-output/README.md
           python -c "import json; d=json.load(open('wheel-acid-base-smoke-output/acid_base_run.json')); assert d['result']['reportable'] is True"
 
+          uv run --isolated --no-project --with dist/*.whl igc-report \
+            --synthetic-example \
+            --output wheel-batch-smoke-output
+          test -s wheel-batch-smoke-output/batch_run.json
+          test -s wheel-batch-smoke-output/batch_summary.csv
+          python -c "import json; d=json.load(open('wheel-batch-smoke-output/batch_run.json')); assert len(d['jobs']) == 4; assert d['jobs'][0]['reportable'] is True"
+
       - name: Smoke-test source distribution
         run: |
           uv run --isolated --no-project --with dist/*.tar.gz igc-bet --help
           uv run --isolated --no-project --with dist/*.tar.gz igc-dispersive --help
           uv run --isolated --no-project --with dist/*.tar.gz igc-acid-base --help
           uv run --isolated --no-project --with dist/*.tar.gz igc-full-peak --help
+          uv run --isolated --no-project --with dist/*.tar.gz igc-report --help
           uv run --isolated --no-project --with dist/*.tar.gz igc-bet \
             --synthetic-example \
             --output sdist-bet-smoke-output
@@ -157,6 +166,10 @@ jobs:
             --synthetic-example \
             --output sdist-acid-base-smoke-output
           python -c "import json; d=json.load(open('sdist-acid-base-smoke-output/acid_base_run.json')); assert d['result']['reportable'] is True"
+          uv run --isolated --no-project --with dist/*.tar.gz igc-report \
+            --synthetic-example \
+            --output sdist-batch-smoke-output
+          python -c "import json; d=json.load(open('sdist-batch-smoke-output/batch_run.json')); assert len(d['jobs']) == 4"
 
   dependency-audit:
     name: Dependency audit

@@ -42,6 +42,7 @@ igc-acid-base = "igc_analysis.cli.acid_base:main"
 igc-bet = "igc_analysis.cli.bet:main"
 igc-dispersive = "igc_analysis.cli.dispersive:main"
 igc-full-peak = "igc_analysis.cli.full_peak:main"
+igc-report = "igc_analysis.cli.report:main"
 igc-ssa-dose = "igc_analysis.cli.geometric_ssa:main"
 
 [tool.setuptools.packages.find]

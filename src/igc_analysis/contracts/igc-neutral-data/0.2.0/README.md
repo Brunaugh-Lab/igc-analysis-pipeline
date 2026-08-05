@@ -27,7 +27,7 @@ bundle/
 └── calibration.csv
 ```
 
-Every bundle represents exactly one experiment in version 0.2.0. Relationships among bundles—such as before/after, treatment/control, matrix/sample, process level, batch, or held-out prediction—belong in a separate future study package keyed by immutable `dataset_id` values. Multiple acquisition blocks are not pooled into one bundle by the current adapter.
+Every bundle represents exactly one experiment in version 0.2.0. The separate `igc-analysis-batch/0.1.0` manifest may coordinate explicit analysis jobs across bundles, but it is not a study-design model and never implies pooling. Relationships such as before/after, treatment/control, matrix/sample, process level, biological or technical replication, or held-out prediction belong in a separately reviewed study package keyed by immutable `dataset_id` values. Multiple acquisition blocks are not pooled into one bundle by the current adapter.
 
 ## Normative rules
 

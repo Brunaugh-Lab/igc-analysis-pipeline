@@ -121,6 +121,11 @@ neutral bundle must contain the study-approved, source-attributed property set.
 Ka and Kb are convention-dependent descriptors; peak maximum is a sensitivity
 result, and van Oss components are not part of this workflow.
 
+The manifest-driven `igc-report` command is under verification on moving
+`main`. It is not included in student release `v2026.8.5`; continue running the
+individual pinned commands above until a later release explicitly adds batch
+reporting.
+
 ## 5. Review before reporting
 
 Opening the final CSV is not sufficient. Review:

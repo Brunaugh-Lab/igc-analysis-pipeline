@@ -14,7 +14,8 @@ The implemented end-to-end chromatography workflows are corrected BET surface
 area, Dorris--Gray dispersive surface energy, Schultz--Gutmann acid/base
 characterization, and full-peak nonlinear analysis through
 `igc-neutral-data/0.2.0`. The repository also provides a geometric surface-area
-dosing utility.
+dosing utility. A manifest-driven `igc-report` candidate on `main` coordinates
+explicit neutral analysis jobs without inferring study groups or pooling.
 
 Lower-level calculation modules for retention, peak detection, and quality
 control remain available for development and unit testing. Any former
@@ -213,6 +214,34 @@ igc-full-peak \
 The reduced model set, grid, and disabled cross-validation make this a quick
 installation check. Remove those speed-oriented options for a scientific run
 and review every generated diagnostic before interpreting the result.
+
+## Batch reporting
+
+`igc-report` coordinates explicit BET, dispersive, acid/base, and full-peak
+jobs from an `igc-analysis-batch/0.1.0` JSON manifest:
+
+```bash
+igc-report \
+  --manifest /path/to/batch.json \
+  --output output/batch-001
+```
+
+The output path must not exist. Every neutral bundle is validated before the
+jobs run, and the complete batch is staged transactionally: a failed job leaves
+no partial result directory. Each job keeps its own output files and
+workflow-specific reportability verdict. The batch summary does not infer
+replicates, pool acquisition blocks, or produce a combined scientific verdict.
+
+Run all four chromatography workflows with packaged synthetic inputs:
+
+```bash
+igc-report --synthetic-example --output output/synthetic-batch
+```
+
+See `docs/batch_reporting_architecture.md` for the manifest, allowed settings,
+transactional behavior, and study-design boundary. This command is a candidate
+on moving `main` until it appears in a later tagged release; release `v2026.8.5`
+does not include it.
 
 ## Neutral contract
 
