@@ -4,6 +4,7 @@ title: "IGC Analysis Pipeline"
 type: software
 version: "2026.8.6"
 date-released: 2026-08-05
+doi: "10.5281/zenodo.21810537"
 license: "MIT"
 authors:
   - family-names: "Brunaugh"

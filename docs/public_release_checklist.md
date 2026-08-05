@@ -218,9 +218,12 @@ dated gate below covers the BET command added in release candidate `v2026.8.4`.
 - [x] Obtain passing GitHub Actions run `31008560968`, including Python
   3.10--3.14, dependency audit, lock/lint/public boundary, distribution builds,
   and installed synthetic workflows.
-- [ ] Tag immutable release `v2026.8.6`, archive it in Zenodo, record the exact
-  version DOI after the archive exists, and verify a credential-free install
-  of the tag before directing students to batch reporting.
+- [x] Tag immutable release `v2026.8.6`, archive it in Zenodo, record the exact
+  version DOI, and verify a credential-free install of the tag before directing
+  students to batch reporting. The tag points to verified commit `9a722de`;
+  release-gate CI run `31023560531` passed; Zenodo version DOI is
+  `10.5281/zenodo.21810537`; and the concept DOI remains
+  `10.5281/zenodo.21760976`.
 
 ## Post-release verification
 
@@ -244,3 +247,11 @@ credential-free clone of the immutable tag installed as version `2026.8.5` and
 completed the packaged BET, dispersive, and acid/base synthetic workflows with
 positive reportability. Zenodo published version DOI
 `10.5281/zenodo.21799047` under concept DOI `10.5281/zenodo.21760976`.
+
+Release `v2026.8.6` was verified on 2026-08-05 at commit `9a722de`. GitHub
+Actions run `31023560531` passed the complete Python 3.10--3.14 matrix and all
+packaging, installed-workflow, lint, boundary, and dependency jobs. A fresh
+credential-free clone of the immutable tag installed as version `2026.8.6`,
+completed the packaged BET, dispersive, acid/base, and full-peak batch example,
+and persisted no local filesystem paths. Zenodo published version DOI
+`10.5281/zenodo.21810537` under concept DOI `10.5281/zenodo.21760976`.

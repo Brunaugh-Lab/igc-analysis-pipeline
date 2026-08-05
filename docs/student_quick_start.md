@@ -10,8 +10,8 @@ lab's private extraction repository.
 Do not change software versions partway through a study. Use the exact release
 selected for the study. Release `v2026.8.6` supports corrected BET, dispersive
 surface energy, acid/base characterization, and explicit batch execution from
-validated neutral bundles. Its version DOI will be recorded in this guide after
-Zenodo archives the release.
+validated neutral bundles. Cite its archived version DOI:
+<https://doi.org/10.5281/zenodo.21810537>.
 
 Install Python 3.10 or newer, create an isolated environment, and install the
 pinned release:
