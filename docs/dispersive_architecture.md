@@ -1,9 +1,8 @@
 # Source-neutral dispersive surface-energy architecture
 
-Status: governed-equivalence candidate. Entry point: `igc-dispersive`.
+Status: verified for release `v2026.8.5`. Entry point: `igc-dispersive`.
 Synthetic closed-form recovery, independent audit, and an authorized governed
-legacy-versus-neutral comparison are complete. Release packaging remains a
-separate gate.
+legacy-versus-neutral comparison are complete.
 
 ## Boundary
 

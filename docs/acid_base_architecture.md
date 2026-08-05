@@ -1,5 +1,9 @@
 # Source-neutral acid/base architecture
 
+Status: verified for release `v2026.8.5`. Entry point: `igc-acid-base`.
+Synthetic recovery, governed calculation-layer comparison, independent audit,
+and fail-closed reportability checks are complete.
+
 ## Scope
 
 `igc-acid-base` provides a coverage-resolved Schultz reference line and

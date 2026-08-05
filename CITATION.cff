@@ -2,9 +2,8 @@ cff-version: 1.2.0
 message: "If you use this software, please cite it using the metadata below."
 title: "IGC Analysis Pipeline"
 type: software
-version: "2026.8.4"
-date-released: 2026-08-04
-doi: "10.5281/zenodo.21796032"
+version: "2026.8.5"
+date-released: 2026-08-05
 license: "MIT"
 authors:
   - family-names: "Brunaugh"

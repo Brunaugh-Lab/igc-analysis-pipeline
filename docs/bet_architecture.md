@@ -1,7 +1,8 @@
 # Source-neutral BET architecture
 
-Status: release candidate `v2026.8.4`; two independent audit passes, synthetic
-recovery, and governed equivalence are complete. Entry point: `igc-bet`.
+Status: released in `v2026.8.4` and included in `v2026.8.5`; two independent
+audit passes, synthetic recovery, and governed equivalence are complete. Entry
+point: `igc-bet`.
 
 ## Boundary
 

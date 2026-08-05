@@ -144,9 +144,11 @@ dated gate below covers the BET command added in release candidate `v2026.8.4`.
   correction; and the nine-point primary surface-energy profile differed by at
   most 0.001 mJ/m2 (0.0028% relative). This was one authorized acquisition,
   not a claim of universal equivalence.
-- [ ] Commit and push the candidate, obtain passing GitHub CI, tag a new
-  immutable release, archive it in Zenodo, and update the student guide from
-  "next tagged release" to the exact version and DOI.
+- [x] Commit and push the candidate and obtain passing GitHub CI. Checkpoint
+  `6f9dd6a` passed run `30962983337`, including Python 3.10--3.14, packaging,
+  installed synthetic workflows, lint, boundary, and dependency jobs.
+- [ ] Tag immutable release `v2026.8.5`, archive it in Zenodo, and record the
+  exact version DOI after the archive exists.
 
 ## Acid/base candidate gate — 2026-08-04
 
@@ -182,9 +184,11 @@ dated gate below covers the BET command added in release candidate `v2026.8.4`.
   passed; fresh wheel and source distributions built; installed dispersive and
   acid/base synthetic workflows were reportable; and the locked runtime audit
   found no known vulnerabilities.
-- [ ] Commit and push the final candidate, obtain passing GitHub CI, and defer
-  the next immutable release/Zenodo archive until the broader dispersive and
-  acid/base rollout is ready to tag.
+- [x] Commit and push the final candidate and obtain passing GitHub CI.
+  Checkpoint `6f9dd6a` passed run `30962983337`, including the complete Python
+  3.10--3.14 matrix and every release gate.
+- [ ] Include the command in immutable release `v2026.8.5`, archive it in
+  Zenodo, and record the exact version DOI after the archive exists.
 
 ## Post-release verification
 

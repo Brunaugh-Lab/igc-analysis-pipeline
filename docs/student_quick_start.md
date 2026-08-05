@@ -8,9 +8,8 @@ lab's private extraction repository.
 ## 1. Use a fixed software release
 
 Do not change software versions partway through a study. Use the exact release
-selected for the study. Release `v2026.8.4` supports corrected BET; use a later
-tagged release that explicitly includes the required `igc-dispersive` or
-`igc-acid-base` command for surface-energy work.
+selected for the study. Release `v2026.8.5` supports corrected BET, dispersive
+surface energy, and acid/base characterization from validated neutral bundles.
 
 Install Python 3.10 or newer, create an isolated environment, and install the
 pinned release:
@@ -18,7 +17,7 @@ pinned release:
 ```bash
 python -m venv .venv
 source .venv/bin/activate
-python -m pip install "igc-analysis-pipeline @ git+https://github.com/Brunaugh-Lab/igc-analysis-pipeline.git@v2026.8.4"
+python -m pip install "igc-analysis-pipeline @ git+https://github.com/Brunaugh-Lab/igc-analysis-pipeline.git@v2026.8.5"
 ```
 
 Confirm the installed version:
@@ -39,7 +38,7 @@ The command should finish successfully and produce a reportable synthetic BET
 fit. This confirms that the software runs; it does not validate an experimental
 dataset.
 
-For a release that includes dispersive analysis, also run:
+Also check dispersive analysis:
 
 ```bash
 igc-dispersive --synthetic-example --output output/synthetic-dispersive
@@ -47,7 +46,7 @@ igc-dispersive --synthetic-example --output output/synthetic-dispersive
 
 The resulting profile should be reportable and close to 40.0 mJ/m².
 
-For a release that includes acid/base analysis, also run:
+Also check acid/base analysis:
 
 ```bash
 igc-acid-base --synthetic-example --output output/synthetic-acid-base
