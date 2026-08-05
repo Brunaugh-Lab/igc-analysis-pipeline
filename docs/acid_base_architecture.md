@@ -2,8 +2,8 @@
 
 Status: released in `v2026.8.5` and included in `v2026.8.6`. Entry point:
 `igc-acid-base`.
-Synthetic recovery, governed calculation-layer comparison, independent audit,
-and fail-closed reportability checks are complete.
+Synthetic recovery, regression verification, independent review, and
+fail-closed reportability checks are complete.
 
 ## Scope
 
@@ -84,5 +84,5 @@ also reflect transport, packing, calibration, peak shape, or coverage mapping.
 
 Van Oss components are deliberately unavailable in the source-neutral command.
 The current contract does not represent the required liquid acid/base
-components with explicit source attribution, and silently reusing internal
-name-based defaults would violate the public boundary.
+components with explicit source attribution, so those components are not
+calculated.

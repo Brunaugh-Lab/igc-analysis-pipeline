@@ -253,9 +253,7 @@ def build_trace_dataset_from_neutral(
 ) -> list[BlockData]:
     """Build full-peak inputs from validated ``igc-neutral-data/0.2.0`` bundles.
 
-    This is the public source-neutral path. It never reads an extraction
-    directory, source filename convention, embedded method file, or protected
-    schema. Each mapping entry is one independently characterized block.
+    Each mapping entry is one independently characterized acquisition block.
     """
 
     from igc_analysis.analysis.peak_detection import detect_baseline, subtract_baseline

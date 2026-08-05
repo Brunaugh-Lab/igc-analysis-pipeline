@@ -2,15 +2,14 @@
 
 Status: released in `v2026.8.5` and included in `v2026.8.6`. Entry point:
 `igc-dispersive`.
-Synthetic closed-form recovery, independent audit, and an authorized governed
-legacy-versus-neutral comparison are complete.
+Synthetic closed-form recovery, independent review, and regression verification
+are complete.
 
 ## Boundary
 
-The workflow accepts one validated `igc-neutral-data/0.2.0` bundle. It does not
-read acquisition files, infer source schemas, or supply source-specific probe
-properties or calibrations. Extraction and source normalization remain in the
-lab's private workflow.
+The workflow accepts one validated `igc-neutral-data/0.2.0` bundle containing
+the detector traces, experimental conditions, calibration, and probe properties
+required by the calculation.
 
 ## Required declarations
 
@@ -105,16 +104,7 @@ The packaged fixture begins with complete synthetic detector traces and a known
 40.0 mJ/m² Dorris-Gray profile. It exercises calibration, actual-coverage
 recovery, matched dead-time subtraction, measured conditions, pressure
 correction, interpolation/extrapolation, both retention definitions, QC, CLI
-outputs, and strict provenance records. It does not replace equivalence testing
-on an authorized governed dataset before release. The governed comparison
-used one authorized acquisition and matched all 24 homologous injections:
-actual coverage and peak-maximum retention volume agreed to floating-point
-precision; center-of-mass retention volume differed by at most 0.00072 mL/g
-(0.0037% relative) after the corrected time-weighted center-of-mass
-calculation; and the nine-point primary surface-energy profile differed by at
-most 0.001 mJ/m2 (0.0028% relative). The comparison inputs and outputs remain
-outside Git, and this internal regression evidence is not a claim of universal
-equivalence.
+outputs, and strict provenance records.
 
 The fixture uses nonzero pressure drop and asymmetric probe peaks, so the
 James--Martin arithmetic is nondegenerate and the center-of-mass and

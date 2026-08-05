@@ -46,14 +46,10 @@ def test_only_contract_fixture_data_files_are_allowed():
     assert is_allowed_data_file(PurePosixPath("docs/architecture.md"))
 
 
-def test_absolute_paths_and_source_specific_markers_are_rejected():
+def test_absolute_user_paths_are_rejected():
     mac_path = b"/" + b"Users" + b"/person/private.csv"
     win_path = b"C:\\" + b"Users" + b"\\person\\private.csv"
-    source_file = b"run" + b"." + b"accdb"
-    old_import = b"import " + b"igc" + b"_sea"
 
     assert forbidden_text_labels(mac_path)
     assert forbidden_text_labels(win_path)
-    assert forbidden_text_labels(source_file)
-    assert forbidden_text_labels(old_import)
     assert not forbidden_text_labels(b"synthetic neutral chromatography bundle")

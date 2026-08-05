@@ -1,8 +1,8 @@
 # Source-neutral BET architecture
 
-Status: released in `v2026.8.4` and included in `v2026.8.6`; two independent
-audit passes, synthetic recovery, and governed equivalence are complete. Entry
-point: `igc-bet`.
+Status: released in `v2026.8.4` and included in `v2026.8.6`; independent review,
+synthetic recovery, and regression verification are complete. Entry point:
+`igc-bet`.
 
 ## Boundary
 
@@ -73,14 +73,12 @@ software version, conventions, QC, sensitivity, and reportability.
 
 Local input paths are deliberately omitted.
 
-## Verification boundary
+## Verification
 
-Unit and synthetic workflow tests do not replace governed equivalence testing.
-On 2026-08-04, the current neutral workflow matched the final corrected
-historical workflow on an authorized governed positive control to
-floating-point precision across the numerical fit, pressure correction, QC,
-classification, and reportability. The governed input bundle and comparison
-outputs remain outside Git.
+Unit tests, closed-form recovery, adversarial QC cases, installed-distribution
+smoke tests, and regression comparisons cover the numerical fit, pressure
+correction, classification, and reportability path. Application to a new study
+still requires review of that study's inputs, diagnostics, and QC verdict.
 
 The packaged closed-form fixture deliberately isolates the BET calculation. It
 uses zero pressure drop, symmetric probe peaks, and identical dead-time markers,

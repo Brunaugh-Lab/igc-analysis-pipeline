@@ -1,6 +1,8 @@
 # Neutral data ingestion boundary
 
-The public analysis package accepts `igc-neutral-data/0.2.0` bundles. Protected-file access, source-format parsing, source table joins, credentials, and extraction-specific tests belong outside this repository.
+The analysis package accepts versioned `igc-neutral-data/0.2.0` bundles. The
+contract provides a consistent tabular representation of experimental metadata,
+conditions, injections, detector traces, calibration, and probe properties.
 
 ## Validation before analysis
 
@@ -87,5 +89,5 @@ One bundle currently represents one experiment and one acquisition block. Multip
 
 Contract `0.1.0` is an immutable experimental baseline but is not accepted by the current reader. Contract `0.2.0` introduced breaking calibration and condition-provenance changes. Inputs are never silently coerced between versions.
 
-Source-specific readers are outside this repository. Additional public analysis
-entry points will be enabled only after they consume the neutral contract.
+Additional analysis entry points will be enabled only after they consume the
+neutral contract and define their scientific readiness requirements.

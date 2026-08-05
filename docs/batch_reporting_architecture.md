@@ -6,12 +6,10 @@ and source-distribution runs, and the complete release gate are passed.
 
 ## Purpose and boundary
 
-`igc-report` runs an explicit list of released chromatography workflows and
+`igc-report` runs an explicit list of supported chromatography workflows and
 collects their existing outputs into one transactional directory. It accepts
-only validated `igc-neutral-data/0.2.0` bundles. It does not read acquisition
-files, discover inputs by scanning source folders, infer sample identity from
-filenames, or reproduce the source-coupled report generator from the former
-combined repository.
+only validated `igc-neutral-data/0.2.0` bundles. Inputs and jobs are declared
+explicitly rather than discovered from directories or inferred from filenames.
 
 The batch manifest is an execution plan, not a study-design model. Bundle and
 job IDs are opaque bookkeeping identifiers. The orchestrator does not infer
@@ -23,7 +21,7 @@ reviewed study design keyed by immutable neutral `dataset_id` values.
 
 The machine-readable schema is packaged at
 `contracts/igc-analysis-batch/0.1.0/schema.json`. Relative bundle paths are
-resolved from the manifest directory, allowing a governed analysis folder to
+resolved from the manifest directory, allowing an analysis folder to
 move without rewriting every entry.
 
 ```json
@@ -71,7 +69,7 @@ references, unsupported analyses, and invalid setting types fail closed.
 ## Execution and outputs
 
 All bundles are structurally validated before analysis begins. Jobs then call
-the existing public command paths, so batch execution cannot bypass their
+the existing supported command paths, so batch execution cannot bypass their
 scientific readiness checks, source-attributed property requirements, QC, or
 reportability rules.
 

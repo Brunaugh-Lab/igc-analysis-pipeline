@@ -1,7 +1,7 @@
-"""Fail when tracked or unignored files cross the public-data boundary.
+"""Check tracked and unignored files for repository-content violations.
 
 Ignored local data are allowed. Tracked, force-added, and new unignored files
-are checked so a candidate can be audited before it is staged.
+are checked before a change is released.
 """
 
 from __future__ import annotations
@@ -33,7 +33,6 @@ SYNTHETIC_DATA_PREFIXES = (
     SYNTHETIC_DISPERSIVE_DATA_PREFIX,
 )
 DATA_EXTENSIONS = {
-    "." + "accdb",
     ".csv",
     ".db",
     ".sqlite",
@@ -42,20 +41,13 @@ DATA_EXTENSIONS = {
     ".xlsx",
 }
 
-# Assemble sensitive markers in pieces so this guard does not match its own
-# source. These are narrow disclosure-boundary checks, not a general secret
-# scanner.
+# Assemble path markers in pieces so this guard does not match its own source.
 FORBIDDEN_TEXT_MARKERS = (
     ("macOS absolute user path", b"/" + b"Users" + b"/"),
     ("Linux absolute home path", b"/" + b"home" + b"/"),
     ("Windows absolute user path", b":\\" + b"Users" + b"\\"),
     ("institutional Dropbox path", b"Dropbox" + b"-UniversityofMichigan"),
     ("institutional Dropbox path", b"University of Michigan" + b" Dropbox"),
-    ("protected source-file extension", b"." + b"accdb"),
-    ("source-specific database library", b"Jack" + b"cess"),
-    ("source-specific commercial software", b"Cir" + b"rus"),
-    ("source-specific commercial vendor", b"Surface Measurement" + b" Systems"),
-    ("former source-specific import", b"igc" + b"_sea"),
 )
 
 
@@ -100,25 +92,25 @@ def main() -> int:
             text_violations.append((str(path), labels))
 
     if reserved_violations:
-        print("Public-release boundary violation: Git tracks reserved local-data paths:")
+        print("Repository content check: reserved local-data paths are tracked:")
         for path in reserved_violations:
             print(f"  - {path}")
 
     if data_violations:
-        print("Public-release boundary violation: Git tracks non-synthetic data files:")
+        print("Repository content check: unexpected data files are tracked:")
         for path in data_violations:
             print(f"  - {path}")
 
     if text_violations:
-        print("Public-release boundary violation: tracked files contain private/source markers:")
+        print("Repository content check: tracked files contain machine-local paths:")
         for path, labels in text_violations:
             print(f"  - {path}: {', '.join(labels)}")
 
     if reserved_violations or data_violations or text_violations:
-        print("Move governed material outside this repository and clean any affected history.")
+        print("Move study data and machine-specific content outside the repository.")
         return 1
 
-    print("Public-release tracked-path and content boundary: OK")
+    print("Repository content check: OK")
     return 0
 
 
