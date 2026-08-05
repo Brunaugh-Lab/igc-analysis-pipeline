@@ -34,11 +34,103 @@
           "bundle_ids": {
             "type": "array",
             "minItems": 1,
+            "maxItems": 1,
             "uniqueItems": true,
             "items": {"type": "string"}
           },
           "settings": {"type": "object"}
-        }
+        },
+        "allOf": [
+          {
+            "if": {"properties": {"analysis": {"const": "bet"}}},
+            "then": {"properties": {"settings": {"$ref": "#/$defs/bet_settings"}}}
+          },
+          {
+            "if": {"properties": {"analysis": {"const": "dispersive"}}},
+            "then": {"properties": {"settings": {"$ref": "#/$defs/dispersive_settings"}}}
+          },
+          {
+            "if": {"properties": {"analysis": {"const": "acid_base"}}},
+            "then": {"properties": {"settings": {"$ref": "#/$defs/acid_base_settings"}}}
+          },
+          {
+            "if": {"properties": {"analysis": {"const": "full_peak"}}},
+            "then": {"properties": {"settings": {"$ref": "#/$defs/full_peak_settings"}}}
+          }
+        ]
+      }
+    }
+  },
+  "$defs": {
+    "identifier_list": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {"type": "string", "minLength": 1}
+    },
+    "bet_settings": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "probe": {"type": "string", "minLength": 1},
+        "retention": {"enum": ["peak_max", "cofm"]},
+        "concentration": {"enum": ["eluted", "loop"]},
+        "origin": {"enum": ["legacy", "rectangular", "linear"]},
+        "p0_min": {"type": "number", "minimum": 0, "exclusiveMaximum": 1},
+        "p0_max": {"type": "number", "minimum": 0, "exclusiveMaximum": 1},
+        "ambient_pressure_pa": {"type": "number", "exclusiveMinimum": 0},
+        "pressure_correction": {"type": "boolean"},
+        "sensitivity": {"type": "boolean"}
+      }
+    },
+    "surface_settings": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "homologous_probe_ids": {"$ref": "#/$defs/identifier_list"},
+        "ambient_pressure_pa": {"type": "number", "exclusiveMinimum": 0},
+        "pressure_correction": {"type": "boolean"},
+        "extrapolate": {"type": "boolean"},
+        "max_temperature_span_k": {"type": "number", "minimum": 0},
+        "max_flow_relative_span": {"type": "number", "minimum": 0}
+      }
+    },
+    "dispersive_settings": {"$ref": "#/$defs/surface_settings"},
+    "acid_base_settings": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["homologous_probe_ids", "polar_probe_ids"],
+      "properties": {
+        "homologous_probe_ids": {
+          "allOf": [{"$ref": "#/$defs/identifier_list"}, {"minItems": 3}]
+        },
+        "polar_probe_ids": {
+          "allOf": [{"$ref": "#/$defs/identifier_list"}, {"minItems": 3}]
+        },
+        "ambient_pressure_pa": {"type": "number", "exclusiveMinimum": 0},
+        "pressure_correction": {"type": "boolean"},
+        "extrapolate": {"type": "boolean"},
+        "max_temperature_span_k": {"type": "number", "minimum": 0},
+        "max_flow_relative_span": {"type": "number", "minimum": 0}
+      }
+    },
+    "full_peak_settings": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "probe": {"type": "string", "minLength": 1},
+        "transport_mode": {
+          "enum": ["fixed_block_mean", "bracket_interpolated", "bracket_pre", "bracket_post"]
+        },
+        "models": {
+          "allOf": [{"$ref": "#/$defs/identifier_list"}, {"minItems": 1}]
+        },
+        "n_cells": {"type": "integer", "minimum": 2},
+        "n_starts": {"type": "integer", "minimum": 1},
+        "lodo": {"type": "boolean"},
+        "lodo_models": {
+          "allOf": [{"$ref": "#/$defs/identifier_list"}, {"minItems": 1}]
+        },
+        "cross_section_m2": {"type": "number", "exclusiveMinimum": 0}
       }
     }
   }

@@ -46,10 +46,9 @@ move without rewriting every entry.
 ```
 
 Supported analysis values are `bet`, `dispersive`, `acid_base`, and
-`full_peak`. BET, dispersive, and acid/base jobs require exactly one bundle.
-Full-peak jobs may explicitly name multiple independently characterized
-bundles; their manifest bundle IDs become the neutral block labels supplied to
-the existing full-peak command.
+`full_peak`. Every job requires exactly one bundle. The standalone
+`igc-full-peak` command retains its reviewed multi-block interface, but a batch
+manifest cannot use it to declare or create a cross-bundle fit.
 
 Every setting is allow-listed and forwarded to the corresponding public
 command. Important keys include:
@@ -89,8 +88,10 @@ batch-output/
 └── full-peak-001/
 ```
 
-Each job directory is the unchanged output of its underlying command. The
-batch run record retains schema/package versions, dataset IDs, neutral-manifest
+Each job directory is the output of its underlying command using the declared
+settings. Batch execution contains process-global plotting state so job order
+does not change another command's figures. The batch run record retains
+schema/package versions, dataset IDs, neutral-manifest
 digests, job-to-bundle mappings, job-relative result locations, and the
 workflow-specific reportability scope. It omits local input paths.
 
@@ -98,6 +99,11 @@ There is deliberately no batch-level scientific verdict. A BET SSA,
 dispersive profile, acid/base profile, and full-peak recovered SSA have
 different reportability meanings. The summary exposes each verdict and scope
 without combining them.
+
+Every batch job accepts exactly one neutral bundle. In particular,
+`igc-report` does not create a joint full-peak fit across bundles. A reviewed
+study that needs the standalone `igc-full-peak` multi-block interface must
+declare and justify that relationship outside this batch manifest.
 
 ## Synthetic verification
 

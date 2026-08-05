@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import math
 import platform
 import re
 import tempfile
@@ -14,7 +15,7 @@ from pathlib import Path
 import pandas as pd
 
 from igc_analysis import __version__
-from igc_analysis.cli import acid_base, bet, dispersive, full_peak
+from igc_analysis.cli import acid_base, bet, dispersive
 from igc_analysis.io.neutral_data import (
     NeutralContractError,
     bundled_contract_path,
@@ -23,6 +24,9 @@ from igc_analysis.io.neutral_data import (
 
 
 BATCH_SCHEMA_VERSION = "igc-analysis-batch/0.1.0"
+BATCH_CONTRACT_PATH = (
+    Path(__file__).resolve().parents[1] / "contracts" / "igc-analysis-batch" / "0.1.0"
+)
 ID_PATTERN = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]*$")
 SUPPORTED_ANALYSES = {"bet", "dispersive", "acid_base", "full_peak"}
 TOP_LEVEL_KEYS = {"schema_version", "batch_id", "bundles", "jobs"}
@@ -52,6 +56,12 @@ SETTING_KEYS = {
 
 class BatchManifestError(ValueError):
     """Raised when a batch manifest is ambiguous or invalid."""
+
+
+def bundled_batch_contract_path() -> Path:
+    """Return the packaged batch-contract directory."""
+
+    return BATCH_CONTRACT_PATH
 
 
 def _canonical_digest(value: object) -> str:
@@ -97,6 +107,8 @@ def _require_number(
     if isinstance(value, bool) or not valid:
         kind = "integer" if integer else "number"
         raise BatchManifestError(f"setting {key!r} must be a {kind}")
+    if not math.isfinite(float(value)):
+        raise BatchManifestError(f"setting {key!r} must be finite")
     return int(value) if integer else float(value)
 
 
@@ -108,6 +120,10 @@ def _require_string_list(
     value = settings.get(key)
     if not isinstance(value, list) or any(not isinstance(item, str) for item in value):
         raise BatchManifestError(f"setting {key!r} must be a list of strings")
+    if any(not ID_PATTERN.fullmatch(item) for item in value):
+        raise BatchManifestError(
+            f"setting {key!r} must contain only nonempty opaque identifiers"
+        )
     if len(value) < minimum:
         raise BatchManifestError(
             f"setting {key!r} requires at least {minimum} explicit identifiers"
@@ -201,7 +217,7 @@ def _validate_manifest(data: dict, base_dir: Path) -> tuple[dict, dict, dict]:
             raise BatchManifestError(
                 f"job {job_id!r} references unknown bundles: {', '.join(missing)}"
             )
-        if analysis != "full_peak" and len(refs) != 1:
+        if len(refs) != 1:
             raise BatchManifestError(
                 f"job {job_id!r} analysis {analysis!r} requires exactly one bundle"
             )
@@ -242,12 +258,19 @@ def _bet_argv(bundle: Path, output: Path, settings: dict) -> list[str]:
     ):
         if key in settings:
             _append_string(argv, flag, settings[key], key)
-    for key, flag, default in (
-        ("p0_min", "--p0-min", 0.05), ("p0_max", "--p0-max", 0.35),
-        ("ambient_pressure_pa", "--ambient-pressure-pa", 101325.0),
-    ):
-        if key in settings:
-            argv.extend([flag, str(_require_number(settings, key, default))])
+    p0_min = _require_number(settings, "p0_min", 0.05)
+    p0_max = _require_number(settings, "p0_max", 0.35)
+    if not (0 <= p0_min < p0_max < 1):
+        raise BatchManifestError("BET bounds must satisfy 0 <= p0_min < p0_max < 1")
+    ambient = _require_number(settings, "ambient_pressure_pa", 101325.0)
+    if ambient <= 0:
+        raise BatchManifestError("setting 'ambient_pressure_pa' must be positive")
+    if "p0_min" in settings:
+        argv.extend(["--p0-min", str(p0_min)])
+    if "p0_max" in settings:
+        argv.extend(["--p0-max", str(p0_max)])
+    if "ambient_pressure_pa" in settings:
+        argv.extend(["--ambient-pressure-pa", str(ambient)])
     if not _require_bool(settings, "pressure_correction", True):
         argv.append("--no-pressure-correction")
     if not _require_bool(settings, "sensitivity", True):
@@ -275,7 +298,12 @@ def _surface_argv(
         ("max_flow_relative_span", "--max-flow-relative-span", 0.05),
     ):
         if key in settings:
-            argv.extend([flag, str(_require_number(settings, key, default))])
+            value = _require_number(settings, key, default)
+            if key == "ambient_pressure_pa" and value <= 0:
+                raise BatchManifestError(f"setting {key!r} must be positive")
+            if key != "ambient_pressure_pa" and value < 0:
+                raise BatchManifestError(f"setting {key!r} cannot be negative")
+            argv.extend([flag, str(value)])
     if not _require_bool(settings, "pressure_correction", True):
         argv.append("--no-pressure-correction")
     if not _require_bool(settings, "extrapolate", True):
@@ -297,7 +325,13 @@ def _full_peak_argv(
         ("n_cells", "--n-cells", 50), ("n_starts", "--n-starts", 4),
     ):
         if key in settings:
-            argv.extend([flag, str(_require_number(settings, key, default, integer=True))])
+            value = _require_number(settings, key, default, integer=True)
+            minimum = 2 if key == "n_cells" else 1
+            if value < minimum:
+                raise BatchManifestError(
+                    f"setting {key!r} must be at least {minimum}"
+                )
+            argv.extend([flag, str(value)])
     for key, flag in (("models", "--models"), ("lodo_models", "--lodo-models")):
         if key in settings:
             values = _require_string_list(settings, key, minimum=1)
@@ -305,9 +339,12 @@ def _full_peak_argv(
     if not _require_bool(settings, "lodo", True):
         argv.append("--no-lodo")
     if "cross_section_m2" in settings:
+        cross_section = _require_number(settings, "cross_section_m2", 0.0)
+        if cross_section <= 0:
+            raise BatchManifestError("setting 'cross_section_m2' must be positive")
         argv.extend([
             "--cross-section",
-            str(_require_number(settings, "cross_section_m2", 0.0)),
+            str(cross_section),
         ])
     return argv
 
@@ -326,33 +363,65 @@ def _run_job(job: dict, bundle_paths: dict[str, Path], output: Path) -> dict:
         acid_base.main(_surface_argv(analysis, bundle_paths[refs[0]], output, settings))
         record_file = "acid_base_run.json"
     else:
-        full_peak.main(_full_peak_argv(refs, bundle_paths, output, settings))
+        # full_peak sets Matplotlib font defaults when imported. Contain that
+        # process-global state so job order cannot alter another CLI's figures.
+        import matplotlib
+
+        with matplotlib.rc_context({"pdf.fonttype": 42, "ps.fonttype": 42}):
+            from igc_analysis.cli import full_peak
+
+            full_peak.main(_full_peak_argv(refs, bundle_paths, output, settings))
         record_file = "full_peak_run.json"
-    record = json.loads((output / record_file).read_text(encoding="utf-8"))
+    try:
+        record = json.loads((output / record_file).read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        raise BatchManifestError(
+            f"{analysis} did not produce a readable {record_file}"
+        ) from exc
+    if not isinstance(record, dict):
+        raise BatchManifestError(f"{analysis} produced an incompatible {record_file}")
+    try:
+        return _summarize_job_record(analysis, record_file, record)
+    except (AttributeError, KeyError, TypeError, ValueError) as exc:
+        raise BatchManifestError(
+            f"{analysis} produced an incompatible {record_file}"
+        ) from exc
+
+
+def _summarize_job_record(analysis: str, record_file: str, record: dict) -> dict:
+    """Extract stable batch fields from one child command's run record."""
+
     if analysis == "bet":
         reportable = bool(
             record.get("reportability")
             and record["reportability"].get("bet_applicable")
         )
         scope = "bet_ssa"
+        qc_status = "PASS" if record["qc"]["passed"] else "REVIEW"
         qc_summary = "PASS" if record["qc"]["passed"] else "REVIEW"
         selected_model = None
     elif analysis in {"dispersive", "acid_base"}:
         reportable = bool(record["result"]["reportable"])
         scope = f"{analysis}_profile"
+        qc_status = "PASS" if record["result"]["qc"]["pass"] else "REVIEW"
         qc_summary = record["result"]["qc"]["summary"]
         selected_model = None
     else:
         reportable = bool(record["ssa"]["reportable"])
         scope = "full_peak_recovered_ssa"
+        qc_status = "NOT_COMBINED"
         qc_summary = (
-            "PASS" if record["qc"]["all_params_identifiable"] else "REVIEW"
+            "all parameters identifiable: "
+            f"{'yes' if record['qc']['all_params_identifiable'] else 'no'}; "
+            f"minimum mass balance: {record['qc']['mass_balance_min']:.6g}; "
+            f"cooperative: {'yes' if record['qc']['cooperative'] else 'no'}"
         )
         selected_model = record["selected_model"]
     return {
         "record_file": record_file,
         "reportability_scope": scope,
         "reportable": reportable,
+        "qc_status": qc_status,
         "qc_summary": qc_summary,
         "selected_model": selected_model,
     }
@@ -378,7 +447,8 @@ def _write_batch_outputs(
             "command_name": "igc-report",
             "batch_schema_version": BATCH_SCHEMA_VERSION,
             "orchestration_rule": (
-                "explicit jobs only; no filename-derived grouping, pooling, or "
+                "explicit single-bundle jobs only; no filename-derived grouping, "
+                "cross-bundle fitting, pooling, or "
                 "cross-job scientific aggregation"
             ),
         },
@@ -399,7 +469,8 @@ def _write_batch_outputs(
         "# IGC batch result", "", f"- Batch: `{manifest['batch_id']}`",
         f"- Jobs completed: {len(rows)}", "",
         "Each job retains its own scientific reportability scope and output directory.",
-        "This orchestrator does not pool bundles, infer replicate groups from names,",
+        "This orchestrator accepts one bundle per job. It does not pool bundles,",
+        "infer replicate groups from names,",
         "or turn several job verdicts into one batch-level scientific verdict.", "",
         "Review `batch_summary.csv`, `batch_run.json`, and every job's README, run",
         "record, QC flags, figures, and reportability verdict before reporting results.",
@@ -498,6 +569,12 @@ def main(argv=None):
 
     output.parent.mkdir(parents=True, exist_ok=True)
     try:
+        output.mkdir()
+    except FileExistsError as exc:
+        raise SystemExit(f"igc-report: output already exists: {output}") from exc
+    claimed_output = True
+    claimed_mode = output.stat().st_mode & 0o777
+    try:
         with tempfile.TemporaryDirectory(prefix=".igc-report-", dir=output.parent) as temporary:
             staged = Path(temporary)
             rows: list[dict] = []
@@ -522,9 +599,28 @@ def main(argv=None):
                     **result,
                 })
             _write_batch_outputs(staged, manifest, bundle_records, rows)
-            staged.replace(output)
+            staged.chmod(claimed_mode)
+            try:
+                output.rmdir()
+            except OSError as exc:
+                raise BatchManifestError(
+                    "claimed output directory changed during execution; refusing "
+                    "to replace it"
+                ) from exc
+            try:
+                staged.replace(output)
+            except OSError as exc:
+                raise BatchManifestError(f"cannot publish batch output: {exc}") from exc
+            claimed_output = False
     except BatchManifestError as exc:
         raise SystemExit(f"igc-report: {exc}") from exc
+    finally:
+        if claimed_output:
+            try:
+                output.rmdir()
+            except OSError:
+                # Preserve unexpected content instead of deleting it.
+                pass
 
     print(f"Batch outputs written to {output}")
     print(f"Completed jobs: {len(manifest['jobs'])}")
